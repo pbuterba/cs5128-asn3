@@ -48,7 +48,7 @@ function query(numCategories: string, csv: string): string {
 export default async function handler(req: NextApiRequest,
     res: NextApiResponse<any>) {
     const numCategories = req.query.numCategories ?? "";
-    const csv = req.body.csv;
+    const csv = req.body.csv ?? "";
     const response = await openai.responses.create({
         model: "gpt-4o-mini",
         input: "hello" //query(numCategories as string, csv),
