@@ -1,95 +1,66 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import { useState, useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const exampleCsv = [
+    "description,date,category",
+    "This feature allows users to schedule and join meetings seamlessly.,01-02-2022,video conferencing",
+    "It provides screen sharing and collaborative tools.,02-02-2022,project management",
+    "Users can record meetings for later review.,03-02-2022,analytics",
+    "The system integrates with calendars to remind of upcoming meetings.,04-02-2022,collaboration",
+    "It supports virtual backgrounds and noise suppression for clear communications.,05-02-2022,screen sharing",
+    "Secure authentication for participants is enabled.,06-02-2022,live chat",
+    "A customizable waiting room enhances meeting security.,07-02-2022,remote meetings",
+    "Users can chat, share files, and collaborate during meetings.,08-02-2022,file sharing",
+    "The user interface is intuitive and user-friendly.,09-02-2022,CRM",
+    "The platform supports high-definition video and audio.,10-02-2022,marketing",
+    "It allows for breakout rooms to facilitate small group discussions.,11-02-2022,video conferencing",
+    "The feature is accessible on various devices across operating systems.,12-02-2022,project management",
+    "Real-time transcription is available for enhanced accessibility.,13-02-2022,analytics",
+    "The tool supports multiple languages for global teams.,14-02-2022,collaboration",
+    "Interactive whiteboard features enable dynamic presentations.,15-02-2022,screen sharing",
+    "Event scheduling is integrated with automated reminders.,16-02-2022,live chat",
+    "It offers robust analytics on meeting performance and engagement.,17-02-2022,remote meetings",
+    "The platform includes end-to-end encryption for maximum privacy.,18-02-2022,file sharing",
+    "Scheduling features automatically sync with users' calendars.,19-02-2022,CRM",
+    "It delivers smooth integration with third-party productivity apps.,20-02-2022,marketing",
+  ];
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  useEffect(() => {
+    fetch("/api/file/upload", {
+      method: "POST",
+      body: JSON.stringify({ fileName: "test2", csv: exampleCsv }),
+    })
+      .then((response) => response.json())
+      .then((json) => console.log("File Created With Name:", json));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/file/available", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((json) => console.log("File Names available:", json));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/features", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ fileName: "test", numCategories: 3 }),
+    })
+      .then((response) => response.json())
+      .then((json) => console.log("Provided Features:", json));
+  }, []);
+
+  return (
+    <div>
+      <h1>Next.js API</h1>
     </div>
   );
 }
