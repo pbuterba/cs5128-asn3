@@ -14,18 +14,6 @@ export default function Home() {
     return (
         <div>
             <h1>Next.js API Request Example</h1>
-            {data ? (
-                <div>
-                    <p>{data.message}</p>
-                    <ul>
-                        {data.data.map((item: any, index: number) => (
-                            <li key={index}>{item}</li>
-                        ))}
-                    </ul>
-                </div>
-            ) : (
-                <p>Loading...</p>
-            )}
         </div>
     );
 }

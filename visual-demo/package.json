@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "csv-parser": "^3.2.0",
     "dotenv": "^16.4.7",
     "next": "^15.2.4",
     "openai": "^4.91.1",
