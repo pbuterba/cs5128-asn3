@@ -4,7 +4,7 @@ import { createRef, Ref, useEffect } from "react";
 import * as d3 from "d3";
 
 const rainbow = (numOfSteps: number, step: number) => {
-    // This function generates vibrant, "evenly spaced" colours (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
+    // This function generates vibrant, "evenly spaced" colors (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
     // Adam Cole, 2011-Sept-14
     // HSV to RBG adapted from: http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
     let r, g, b;
@@ -30,7 +30,7 @@ class CoralBase {
     y: number;
     width: number;
     height: number;
-    children: CoralBranch[];
+    categories: CoralBranch[];
     svgRef: Ref<SVGElement>;
 
     constructor(x: number, y: number, width: number, height: number, svgRef: Ref<SVGElement>) {
@@ -38,7 +38,7 @@ class CoralBase {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.children = [new CoralBranch(), new CoralBranch(), new CoralBranch()];
+        this.categories = [new CoralBranch(), new CoralBranch(), new CoralBranch(), new CoralBranch()];
         this.svgRef = svgRef;
     }
 
@@ -46,19 +46,19 @@ class CoralBase {
         if (!this.svgRef) return;
         const svg = d3.select(this.svgRef.current);
         svg.selectAll('*').remove();
-        this.children.forEach((child: CoralBranch, i) => {
-            const angle = (((2 * Math.PI)/this.children.length) * i) - (Math.PI / 2);
-            const branchAngle = ((2 * Math.PI)/this.children.length) / 4;
-            child.draw(this.width / 2, this.height / 2, angle, branchAngle, this.svgRef, rainbow(this.children.length, i), 200, 5);
+        this.categories.forEach((child: CoralBranch, i) => {
+            const angle = (((2 * Math.PI)/this.categories.length) * i) - (Math.PI / 2);
+            const branchAngle = ((2 * Math.PI)/this.categories.length) / 4;
+            child.draw(this.width / 2, this.height / 2, angle, branchAngle, this.svgRef, rainbow(this.categories.length, i), 200, 5);
         });
     }
 }
 
 class CoralBranch {
-    children: [number, CoralBranch][];
+    features: [number, CoralBranch][];
     thickness: number;
     constructor() {
-        this.children = [];
+        this.features = [];
     }
 
     draw(x: number, y: number, relativeAngle: number, branchAngle: number, svgRef: Ref<SVGElement>, color: string, length: number, thickness: number) {
@@ -79,7 +79,7 @@ class CoralBranch {
             .attr('stroke-linecap', 'round')
             .attr('stroke-width', thickness);
         
-        this.children.forEach((child: [number, CoralBranch], i) => {
+        this.features.forEach((child: [number, CoralBranch], i) => {
             const pos = position(x, y, relativeAngle, child[0]);
             const branchSide = [-1,1][i % 2]
             child[1].draw(pos[0], pos[1], relativeAngle + (branchAngle * branchSide), branchAngle / 2, svgRef, color, length * 0.65, thickness * 0.85);
@@ -98,20 +98,22 @@ export default function Coral({width, height}) {
   const ref = createRef<SVGElement>();
   const coral = new CoralBase(width / 2, height / 2, width, height, ref);
 
-  coral.children[0].children.push([0.25, new CoralBranch()]);
-  coral.children[0].children.push([0.4, new CoralBranch()]);
+  coral.categories[0].features.push([0.25, new CoralBranch()]);
+  coral.categories[0].features.push([0.4, new CoralBranch()]);
 
-  coral.children[0].children[0][1].children.push([0.5, new CoralBranch()]);
+  coral.categories[0].features[0][1].features.push([0.5, new CoralBranch()]);
 
-  coral.children[1].children.push([0.25, new CoralBranch()]);
+  coral.categories[1].features.push([0.25, new CoralBranch()]);
 
-  coral.children[1].children.push([0.5, new CoralBranch()]);
+  coral.categories[1].features.push([0.5, new CoralBranch()]);
 
-  coral.children[1].children.push([0.65, new CoralBranch()]);
+  coral.categories[1].features.push([0.65, new CoralBranch()]);
 
-  coral.children[1].children[0][1].children.push([0.5, new CoralBranch()]);
+  coral.categories[1].features[0][1].features.push([0.5, new CoralBranch()]);
 
-  coral.children[1].children[2][1].children.push([0.5, new CoralBranch()]);
+  coral.categories[1].features[2][1].features.push([0.5, new CoralBranch()]);
+
+  coral.categories[1].features[1][1].features.push([.25, new CoralBranch()]);
 
   useEffect(() => {
     coral.draw();
