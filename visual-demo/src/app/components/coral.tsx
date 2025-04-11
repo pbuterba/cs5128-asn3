@@ -2,6 +2,8 @@
 
 import { createRef, Ref, useEffect } from "react";
 import * as d3 from "d3";
+import { Category, Feature } from "../types/feature";
+import dayjs from "dayjs";
 
 const rainbow = (numOfSteps: number, step: number) => {
     // This function generates vibrant, "evenly spaced" colors (i.e. no clustering). This is ideal for creating easily distinguishable vibrant markers in Google Maps and other apps.
@@ -25,100 +27,210 @@ const rainbow = (numOfSteps: number, step: number) => {
 
 }
 
+const minMaxCategoriesDate = (categories: Category[]) => {
+    let maxDate = dayjs.unix(0);
+    let minDate = dayjs().add(100, 'years');
+    categories.forEach((category: Category) => {
+        const [minCategoryDate, maxCategoryDate] = minMaxFeatureDate(category.features);
+        if (maxCategoryDate > maxDate) {
+            maxDate = maxCategoryDate;
+        }
+        if (minCategoryDate < minDate) {
+            minDate = minCategoryDate;
+        }
+    });
+    return [minDate, maxDate];
+}
+
+const minMaxFeatureDate = (features: Feature[]) => {
+    let maxDate = dayjs.unix(0);
+    let minDate = dayjs().add(100, 'years');
+    features.forEach((feature: Feature) => {
+        if (feature.childFeatures.length > 0) {
+            const [minChildDate, maxChildDate] = minMaxFeatureDate(feature.childFeatures);
+            if (maxChildDate > maxDate) {
+                maxDate = maxChildDate;
+            }
+            if (minChildDate < minDate) {
+                minDate = minChildDate;
+            }
+        }
+        if (feature.timestamp > maxDate) {
+            maxDate = feature.timestamp;
+        }
+        if (feature.timestamp < minDate) {
+            minDate = feature.timestamp;
+        }
+    });
+    return [minDate, maxDate];
+}
+
+const plotPolygonPoint = (angle: number, sides: number, radius: number) => {
+	const sectorAngle = 2 * Math.PI / sides;
+	const sideAngle = sectorAngle * Math.round(angle / sectorAngle);	
+	
+	const diffAngle = angle - sideAngle;
+	
+	const forward = radius;
+	const sideward = radius * Math.tan(diffAngle);
+	
+	const sideNormalX = Math.cos(sideAngle);
+	const sideNormalY = Math.sin(sideAngle);
+
+    return {
+        x: sideNormalX * forward - sideNormalY * sideward,
+        y: sideNormalY * forward + sideNormalX * sideward,
+    }
+}
+
 class CoralBase {
-    x: number;
-    y: number;
     width: number;
     height: number;
-    categories: CoralBranch[];
+    categories: Category[];
     svgRef: Ref<SVGElement>;
+    maxDate: dayjs.Dayjs;
+    minDate: dayjs.Dayjs;
 
-    constructor(x: number, y: number, width: number, height: number, svgRef: Ref<SVGElement>) {
-        this.x = x;
-        this.y = y;
+    constructor(width: number, height: number, svgRef: Ref<SVGElement>, categories: Category[]) {
         this.width = width;
         this.height = height;
-        this.categories = [new CoralBranch(), new CoralBranch(), new CoralBranch(), new CoralBranch()];
         this.svgRef = svgRef;
-    }
+        this.categories = categories;
+        const [a, b] = minMaxCategoriesDate(categories);
+        this.minDate = a.subtract(6, 'M');
+        this.maxDate = b.add(6, 'M');
+   }
 
     draw() {
         if (!this.svgRef) return;
         const svg = d3.select(this.svgRef.current);
         svg.selectAll('*').remove();
-        this.categories.forEach((child: CoralBranch, i) => {
+        this.categories.forEach((category: Category, i) => {
             const angle = (((2 * Math.PI)/this.categories.length) * i) - (Math.PI / 2);
             const branchAngle = ((2 * Math.PI)/this.categories.length) / 4;
-            child.draw(this.width / 2, this.height / 2, angle, branchAngle, this.svgRef, rainbow(this.categories.length, i), 200, 5);
+            const thickness = 5;
+            const color = rainbow(this.categories.length, i);
+            const length = 275;
+            svg
+                .append('line')
+                .attr('x1', this.width / 2)
+                .attr('y1', this.height / 2)
+                .attr('x2', (length * Math.cos(angle)) + (this.width / 2))
+                .attr('y2', (length * Math.sin(angle)) + (this.height / 2))
+                .attr('stroke', color)
+                .attr('stroke-linecap', 'round')
+                .attr('stroke-width', thickness);
+            category.features.forEach((feature: Feature, j) => {
+                let factor = 1;
+                if (j % 2 === 0) factor = -1;
+                this.drawBranch(this.width, this.height, feature, thickness * .85, rainbow(this.categories.length, i), branchAngle * factor, angle, this.categories.length, this.minDate, this.maxDate);
+            })
+            
         });
     }
-}
 
-class CoralBranch {
-    features: [number, CoralBranch][];
-    thickness: number;
-    constructor() {
-        this.features = [];
-    }
-
-    draw(x: number, y: number, relativeAngle: number, branchAngle: number, svgRef: Ref<SVGElement>, color: string, length: number, thickness: number) {
-        if (!svgRef) return;
-        const svg = d3.select(svgRef.current);
-        
-        const position = (x: number, y: number, angle: number, percent: number) => {
-            return [((length * percent) * Math.cos(angle)) + x, ((length * percent) * Math.sin(relativeAngle)) + y]
+    drawBranch(width: number, height: number, feature: Feature, thickness: number, color: string, branchAngle: number, relativeAngle: number, numSides: number, minDate: dayjs.Dayjs, maxDate: dayjs.Dayjs) {
+        if (!this.svgRef) return;
+        const svg = d3.select(this.svgRef.current);
+        const branchLength = 100;
+        const timeDistance = ((feature.timestamp.unix() - minDate.unix()) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2));
+      
+        const pos = plotPolygonPoint(relativeAngle + (Math.PI / 2), numSides, timeDistance);
+        const originOffset = {
+            x: (width / 2) + pos.y,
+            y: (height / 2) - pos.x
         }
-
         svg
-            .append('line')
-            .attr('x1', x)
-            .attr('y1', y)
-            .attr('x2', (length * Math.cos(relativeAngle)) + x)
-            .attr('y2', (length * Math.sin(relativeAngle)) + y)
-            .attr('stroke', color)
-            .attr('stroke-linecap', 'round')
-            .attr('stroke-width', thickness);
+          .append('line')
+          .attr('x1', originOffset.x)
+          .attr('y1', originOffset.y)
+          .attr('x2', (branchLength * Math.cos(relativeAngle + branchAngle)) + originOffset.x)
+          .attr('y2', (branchLength * Math.sin(relativeAngle + branchAngle)) + originOffset.y)
+          .attr('stroke', color)
+          .attr('stroke-linecap', 'round')
+          .attr('stroke-width', thickness);
         
-        this.features.forEach((child: [number, CoralBranch], i) => {
-            const pos = position(x, y, relativeAngle, child[0]);
-            const branchSide = [-1,1][i % 2]
-            child[1].draw(pos[0], pos[1], relativeAngle + (branchAngle * branchSide), branchAngle / 2, svgRef, color, length * 0.65, thickness * 0.85);
+        svg
+          .append('circle')
+          .attr('cx', originOffset.x)
+          .attr('cy', originOffset.y)
+          .attr('fill', "white")
+          .attr('r', thickness);
+        feature.childFeatures.forEach((child: Feature, i) => {
+          
+          const newBranchAngle = branchAngle / 4;
+          this.drawBranch(width, height, child, thickness * .65, color, newBranchAngle, branchAngle, numSides, minDate, maxDate);
+              
+        });
+
             
-            svg
-                .append('circle')
-                .attr('cx', pos[0])
-                .attr('cy', pos[1])
-                .attr('fill', "white")
-                .attr('r', thickness);
-            });
     }
 }
 
 export default function Coral({width, height}) {
   const ref = createRef<SVGElement>();
-  const coral = new CoralBase(width / 2, height / 2, width, height, ref);
+  const categories: Category[] = [
+    {
+        name: "User Experience",
+        features: []
+    },
+    {
+        name: "Networking",
+        features: [
+          {
+            childFeatures: [
+              {
+                childFeatures: [],
+                descr: "",
+                timestamp: dayjs().add(3, 'year').add(2, 'month'),
+              }
+            ],
+            descr: "",
+            timestamp: dayjs().add(3, 'year'),
+          }
+        ]
+    },
+    {
+        name: "Audio",
+        features: [
+            {
+                childFeatures: [],
+                descr: "",
+                timestamp: dayjs().add(3, 'year'),
+            },
+            {
+                childFeatures: [],
+                descr: "",
+                timestamp: dayjs().add(4, 'year'),
+            },
+            {
+                childFeatures: [],
+                descr: "",
+                timestamp: dayjs().add(4, 'year').add(6, 'month'),
+            }
+        ]
+    },
+    
+  ];
 
-  coral.categories[0].features.push([0.25, new CoralBranch()]);
-  coral.categories[0].features.push([0.4, new CoralBranch()]);
-
-  coral.categories[0].features[0][1].features.push([0.5, new CoralBranch()]);
-
-  coral.categories[1].features.push([0.25, new CoralBranch()]);
-
-  coral.categories[1].features.push([0.5, new CoralBranch()]);
-
-  coral.categories[1].features.push([0.65, new CoralBranch()]);
-
-  coral.categories[1].features[0][1].features.push([0.5, new CoralBranch()]);
-
-  coral.categories[1].features[2][1].features.push([0.5, new CoralBranch()]);
-
-  coral.categories[1].features[1][1].features.push([.25, new CoralBranch()]);
+  const coral = new CoralBase(width, height, ref, categories);
 
   useEffect(() => {
     coral.draw();
+    // if (!ref) return;
+    // const svg = d3.select(ref.current);
+    // for (let i = 0; i < 1000; i++) {
+    //   const pos = plotPolygonPoint((i / 1000) * (2 * Math.PI), 3, 150);
+    //   svg
+    //     .append('circle')
+    //     .attr('cx', (width/2) + pos.y)
+    //     .attr('cy', (height/2) - pos.x)
+    //     .attr('fill', 'white')
+    //     .attr('r', 5);
+    // }
   })
+
     
-  coral.draw();
+
   return <svg width={width} height={height} ref={ref} />;
 }
