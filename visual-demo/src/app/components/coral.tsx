@@ -169,6 +169,10 @@ class CoralBase {
 
 export default function Coral({width, height}) {
   const ref = createRef<SVGElement>();
+
+  // I asked the parsing team to give us a Category[] object so we can just use it directly in the Coral component without additional transformation
+
+  // example categories and features
   const categories: Category[] = [
     {
         name: "User Experience",
