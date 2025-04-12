@@ -1,6 +1,9 @@
+'use client'
+
+import { useCallback } from "react";
 import Coral from "./components/coral";
 import styles from "./page.module.css";
-import { Category } from "./types/feature";
+import { Category, Feature } from "./types/feature";
 import dayjs from "dayjs";
 
 export default function Home() {
@@ -13,97 +16,97 @@ export default function Home() {
             childFeatures: [
               {
                 childFeatures: [],
-                description: "",
+                description: "Networking 2",
                 timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
               },
               {
                 childFeatures: [],
-                description: "",
+                description: "Networking 3",
                 timestamp: dayjs().add(4, 'year').add(3, 'month').toISOString(),
               },
               {
                 childFeatures: [],
-                description: "",
+                description: "Networking 4",
                 timestamp: dayjs().add(5, 'year').add(1, 'month').toISOString(),
               }
             ],
-            description: "",
+            description: "Networking 1",
             timestamp: dayjs().add(3, 'year').toISOString(),
           },
           {
             childFeatures: [
               {
                 childFeatures: [],
-                description: "",
+                description: "Networking 6",
                 timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
               },
               {
                 childFeatures: [],
-                description: "",
+                description: "Networking 7",
                 timestamp: dayjs().add(3, 'year').add(3, 'month').toISOString(),
               },
               {
                 childFeatures: [],
-                description: "",
+                description: "Networking 8",
                 timestamp: dayjs().add(6, 'year').add(1, 'month').toISOString(),
               }
             ],
-            description: "",
+            description: "Networking 5",
             timestamp: dayjs().add(3, 'year').toISOString(),
           }
         ]
     },
     {
-        name: "Networking",
+        name: "OS",
         features: [
           {
             childFeatures: [
             ],
-            description: "",
+            description: "OS 1",
             timestamp: dayjs().add(3, 'year').toISOString(),
           }
         ]
     },
     {
-        name: "Networking",
+        name: "User Interface",
         features: [
           {
             childFeatures: [
             ],
-            description: "",
+            description: "UI 1",
             timestamp: dayjs().add(3, 'year').toISOString(),
           }
         ]
     },
     {
-        name: "Networking",
+        name: "API",
         features: [
           {
             childFeatures: [
             ],
-            description: "",
+            description: "API 1",
             timestamp: dayjs().add(3, 'year').toISOString(),
           }
         ]
     },
     {
-        name: "Networking",
+        name: "QA",
         features: [
           {
             childFeatures: [
             ],
-            description: "",
+            description: "QA 1",
             timestamp: dayjs().add(3, 'year').toISOString(),
           }
         ]
     },
     {
-        name: "Networking",
+        name: "DevOps",
         features: [
           {
             childFeatures: [
             ],
-            description: "",
+            description: "DevOps 1",
             timestamp: dayjs().add(3, 'year').toISOString(),
           }
         ]
@@ -111,9 +114,18 @@ export default function Home() {
     
   ];
 
+  // onFeatureHover function to handle hover events on features (highlighting in side bar or showing details in a popup)
+  const onFeatureHover = useCallback( (feature: Feature) =>{
+    if (feature) {
+      console.log("Hovered feature:", feature.description);
+    } else {
+      console.log("No feature hovered");
+    }
+  }, []);
+
   return (
     <div className={styles.page}>
-      <Coral width={600} height={600} categories={categories}/>
+      <Coral width={600} height={600} categories={categories} onFeatureHover={onFeatureHover}/>
     </div>
   );
 }

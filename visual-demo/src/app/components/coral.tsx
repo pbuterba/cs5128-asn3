@@ -1,6 +1,6 @@
 'use client'
 
-import { createRef, Ref, useEffect } from "react";
+import { createRef, Ref, RefObject, useEffect, useRef } from "react";
 import * as d3 from "d3";
 import { Category, Feature } from "../types/feature";
 import dayjs from "dayjs";
@@ -91,8 +91,9 @@ class CoralBase {
     svgRef: Ref<SVGElement>;
     maxDate: dayjs.Dayjs;
     minDate: dayjs.Dayjs;
+    onFeatureHoverRef: RefObject<((feature: Feature | null) => void) | undefined>;
 
-    constructor(width: number, height: number, svgRef: Ref<SVGElement>, categories: Category[]) {
+    constructor(width: number, height: number, svgRef: Ref<SVGElement>, categories: Category[], onFeatureHoverRef: RefObject<((feature: Feature | null) => void) | undefined>) {
         this.width = width;
         this.height = height;
         this.svgRef = svgRef;
@@ -100,6 +101,7 @@ class CoralBase {
         const [a, b] = minMaxCategoriesDate(categories);
         this.minDate = a.subtract(6, 'M');
         this.maxDate = b.add(6, 'M');
+        this.onFeatureHoverRef = onFeatureHoverRef;
     }
 
     draw() {
@@ -158,7 +160,13 @@ class CoralBase {
           .attr('cx', pos.x)
           .attr('cy', pos.y)
           .attr('fill', "white")
-          .attr('r', thickness);
+          .attr('r', thickness)
+          .on("mouseover", () => {
+            this.onFeatureHoverRef.current?.(feature);
+          })
+          .on("mouseout", () => {
+            this.onFeatureHoverRef.current?.(null);
+          });
 
         feature.childFeatures.forEach((child: Feature, i) => {
             let factor = 1;
@@ -168,11 +176,13 @@ class CoralBase {
     }
 }
 
-export default function Coral({width, height, categories}) {
+export default function Coral({width, height, categories, onFeatureHover}) {
     const ref = createRef<SVGElement>();
-
+    const onFeatureHoverRef = useRef<typeof onFeatureHover>(null);
+    onFeatureHoverRef.current = onFeatureHover; 
+    
     useEffect(() => {
-        const coral = new CoralBase(width, height, ref, categories);
+        const coral = new CoralBase(width, height, ref, categories, onFeatureHoverRef);
         coral.draw();
 
         if (!ref.current) return;
