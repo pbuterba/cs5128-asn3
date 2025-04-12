@@ -113,7 +113,7 @@ class CoralBase {
             const color = rainbow(this.categories.length, i);
             const length = 275;
 
-            g.append('line')
+            svg.append('line')
                 .attr('x1', this.width / 2)
                 .attr('y1', this.height / 2)
                 .attr('x2', (length * Math.cos(angle)) + (this.width / 2))
@@ -163,28 +163,6 @@ class CoralBase {
           if (i % 2 === 0) factor = -1;
           this.drawBranch(pos.x, pos.y, width, height, child, thickness * .65, color, childDepth + 1, factor, branchAngle, numSides, minDate, maxDate);
         });
-
-      // const defs = svg.append('defs');
-
-      // const filter = defs
-      //   .append('filter')
-      //   .attr('id', 'glow');
-
-      // filter
-      //   .append('feGaussianBlur')
-      //   .attr('stdDeviation', '3.5')
-      //   .attr('result', 'coloredBlur');
-
-      // const feMerge = filter.append('feMerge');
-      // feMerge
-      //   .append('feMergeNode')
-      //   .attr('in', 'coloredBlur');
-      // feMerge
-      //   .append('feMergeNode')
-      //   .attr('in', 'SourceGraphic');
-      // d3
-      //   .selectAll('line')
-      //   .style('filter', 'url(#glow)')
 
   }
 }
@@ -305,17 +283,7 @@ export default function Coral({width, height}) {
       coral.draw();
       if (!ref) return;
       const svg = d3.select(ref.current);
-      // Create zoomable group
-      // svg.attr('class', 'zoom-group');
 
-      // // Attach zoom behavior
-      // svg.call(
-      //     d3.zoom<SVGSVGElement, unknown>()
-      //         .scaleExtent([0.5, 5])
-      //         .on("zoom", (event) => {
-      //             svg.attr("transform", event.transform);
-      //         })
-      // );
       // for (let i = 0; i < 1000; i++) {
       //   const pos = plotPolygonPoint((i / 1000) * (2 * Math.PI), 3, 150);
       //   svg
