@@ -99,19 +99,21 @@ class CoralBase {
         const [a, b] = minMaxCategoriesDate(categories);
         this.minDate = a.subtract(6, 'M');
         this.maxDate = b.add(6, 'M');
-   }
+    }
 
     draw() {
-        if (!this.svgRef) return;
+        if (!this.svgRef || !this.svgRef.current) return;
         const svg = d3.select(this.svgRef.current);
         svg.selectAll('*').remove();
+
+        // Draw categories and features inside the group
         this.categories.forEach((category: Category, i) => {
             const angle = (((2 * Math.PI)/this.categories.length) * i) - (Math.PI / 2);
             const thickness = 5;
             const color = rainbow(this.categories.length, i);
             const length = 275;
-            svg
-                .append('line')
+
+            g.append('line')
                 .attr('x1', this.width / 2)
                 .attr('y1', this.height / 2)
                 .attr('x2', (length * Math.cos(angle)) + (this.width / 2))
@@ -119,6 +121,7 @@ class CoralBase {
                 .attr('stroke', color)
                 .attr('stroke-linecap', 'round')
                 .attr('stroke-width', thickness);
+
             category.features.forEach((feature: Feature, j) => {
                 let factor = 1;
                 if (j % 2 === 0) factor = -1;
@@ -183,9 +186,7 @@ class CoralBase {
       //   .selectAll('line')
       //   .style('filter', 'url(#glow)')
 
-      
-            
-    }
+  }
 }
 
 export default function Coral({width, height}) {
@@ -296,24 +297,38 @@ export default function Coral({width, height}) {
     
   ];
 
-  const coral = new CoralBase(width, height, ref, categories);
+    // I asked the parsing team to give us a Category[] object so we can just use it directly in the Coral component without additional transformation
 
-  useEffect(() => {
-    coral.draw();
-    // if (!ref) return;
-    // const svg = d3.select(ref.current);
-    // for (let i = 0; i < 1000; i++) {
-    //   const pos = plotPolygonPoint(width/2, height/2, (i / 1000) * (2 * Math.PI), 3, 100);
-    //   svg
-    //     .append('circle')
-    //     .attr('cx', pos.y)
-    //     .attr('cy', pos.x)
-    //     .attr('fill', 'white')
-    //     .attr('r', 5);
-    // }
-  })
+    const coral = new CoralBase(width, height, ref, categories);
 
-    
+    useEffect(() => {
+      coral.draw();
+      if (!ref) return;
+      const svg = d3.select(ref.current);
+      // Create zoomable group
+      // svg.attr('class', 'zoom-group');
 
-  return <svg width={width} height={height} ref={ref} />;
-}
+      // // Attach zoom behavior
+      // svg.call(
+      //     d3.zoom<SVGSVGElement, unknown>()
+      //         .scaleExtent([0.5, 5])
+      //         .on("zoom", (event) => {
+      //             svg.attr("transform", event.transform);
+      //         })
+      // );
+      // for (let i = 0; i < 1000; i++) {
+      //   const pos = plotPolygonPoint((i / 1000) * (2 * Math.PI), 3, 150);
+      //   svg
+      //     .append('circle')
+      //     .attr('cx', (width/2) + pos.y)
+      //     .attr('cy', (height/2) - pos.x)
+      //     .attr('fill', 'white')
+      //     .attr('r', 5);
+      // }
+    })
+  
+      
+  
+    return <svg width={width} height={height} ref={ref} />;
+  }
+  
