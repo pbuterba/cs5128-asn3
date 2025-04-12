@@ -55,11 +55,12 @@ const minMaxFeatureDate = (features: Feature[]) => {
                 minDate = minChildDate;
             }
         }
-        if (feature.timestamp > maxDate) {
-            maxDate = feature.timestamp;
+        const timestamp = dayjs(feature.timestamp);
+        if (timestamp > maxDate) {
+            maxDate = timestamp;
         }
-        if (feature.timestamp < minDate) {
-            minDate = feature.timestamp;
+        if (timestamp < minDate) {
+            minDate = timestamp;
         }
     });
     return [minDate, maxDate];
@@ -137,7 +138,8 @@ class CoralBase {
         const branchLength = 225;
         const maxAngleOffset = ((Math.PI * 2) / numSides) / (2 * (childDepth + 2));
         
-        const timeDistance = ((feature.timestamp.unix() - minDate.unix()) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2));
+        const timestamp = dayjs(feature.timestamp);
+        const timeDistance = ((timestamp.unix() - minDate.unix()) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2));
       
         const branchAngle = relativeAngle + (maxAngleOffset * side);
 
@@ -167,115 +169,9 @@ class CoralBase {
   }
 }
 
-export default function Coral({width, height}) {
-  const ref = createRef<SVGElement>();
-  const categories: Category[] = [
-    {
-        name: "Networking",
-        features: [
-          {
-            childFeatures: [
-              {
-                childFeatures: [],
-                descr: "",
-                timestamp: dayjs().add(3, 'year').add(1, 'month'),
-              },
-              {
-                childFeatures: [],
-                descr: "",
-                timestamp: dayjs().add(4, 'year').add(3, 'month'),
-              },
-              {
-                childFeatures: [],
-                descr: "",
-                timestamp: dayjs().add(5, 'year').add(1, 'month'),
-              }
-            ],
-            descr: "",
-            timestamp: dayjs().add(3, 'year'),
-          },
-          {
-            childFeatures: [
-              {
-                childFeatures: [],
-                descr: "",
-                timestamp: dayjs().add(3, 'year').add(1, 'month'),
-              },
-              {
-                childFeatures: [],
-                descr: "",
-                timestamp: dayjs().add(3, 'year').add(3, 'month'),
-              },
-              {
-                childFeatures: [],
-                descr: "",
-                timestamp: dayjs().add(6, 'year').add(1, 'month'),
-              }
-            ],
-            descr: "",
-            timestamp: dayjs().add(3, 'year'),
-          }
-        ]
-    },
-    {
-        name: "Networking",
-        features: [
-          {
-            childFeatures: [
-            ],
-            descr: "",
-            timestamp: dayjs().add(3, 'year'),
-          }
-        ]
-    },
-    {
-        name: "Networking",
-        features: [
-          {
-            childFeatures: [
-            ],
-            descr: "",
-            timestamp: dayjs().add(3, 'year'),
-          }
-        ]
-    },
-    {
-        name: "Networking",
-        features: [
-          {
-            childFeatures: [
-            ],
-            descr: "",
-            timestamp: dayjs().add(3, 'year'),
-          }
-        ]
-    },
-    {
-        name: "Networking",
-        features: [
-          {
-            childFeatures: [
-            ],
-            descr: "",
-            timestamp: dayjs().add(3, 'year'),
-          }
-        ]
-    },
-    {
-        name: "Networking",
-        features: [
-          {
-            childFeatures: [
-            ],
-            descr: "",
-            timestamp: dayjs().add(3, 'year'),
-          }
-        ]
-    },
-    
-  ];
-
-    // I asked the parsing team to give us a Category[] object so we can just use it directly in the Coral component without additional transformation
+// I asked the parsing team to give us a Category[] object so we can just use it directly in the Coral component without additional transformation
+export default function Coral({width, height, categories}) {
+    const ref = createRef<SVGElement>();
 
     const coral = new CoralBase(width, height, ref, categories);
 
