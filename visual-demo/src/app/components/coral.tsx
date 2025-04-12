@@ -107,14 +107,16 @@ class CoralBase {
         const svg = d3.select(this.svgRef.current);
         svg.selectAll('*').remove();
 
-        // Draw categories and features inside the group
+        // Create and append a group element to allow zoom/pan
+        const container = svg.append('g').attr('class', 'zoom-container');
+
         this.categories.forEach((category: Category, i) => {
             const angle = (((2 * Math.PI)/this.categories.length) * i) - (Math.PI / 2);
             const thickness = 5;
             const color = rainbow(this.categories.length, i);
             const length = 275;
 
-            svg.append('line')
+            container.append('line')
                 .attr('x1', this.width / 2)
                 .attr('y1', this.height / 2)
                 .attr('x2', (length * Math.cos(angle)) + (this.width / 2))
@@ -126,15 +128,12 @@ class CoralBase {
             category.features.forEach((feature: Feature, j) => {
                 let factor = 1;
                 if (j % 2 === 0) factor = -1;
-                this.drawBranch(this.width / 2, this.height / 2, this.width, this.height, feature, thickness * .85, rainbow(this.categories.length, i), 0, factor, angle, this.categories.length, this.minDate, this.maxDate);
+                this.drawBranch(container, this.width / 2, this.height / 2, this.width, this.height, feature, thickness * .85, rainbow(this.categories.length, i), 0, factor, angle, this.categories.length, this.minDate, this.maxDate);
             });
-            
         });
     }
 
-    drawBranch(x: number, y: number, width: number, height: number, feature: Feature, thickness: number, color: string, childDepth: number, side: number, relativeAngle: number, numSides: number, minDate: dayjs.Dayjs, maxDate: dayjs.Dayjs) {
-        if (!this.svgRef) return;
-        const svg = d3.select(this.svgRef.current);
+    drawBranch(container: d3.Selection<SVGGElement, unknown, null, undefined>, x: number, y: number, width: number, height: number, feature: Feature, thickness: number, color: string, childDepth: number, side: number, relativeAngle: number, numSides: number, minDate: dayjs.Dayjs, maxDate: dayjs.Dayjs) {
         const branchLength = 225;
         const maxAngleOffset = ((Math.PI * 2) / numSides) / (2 * (childDepth + 2));
         
@@ -142,9 +141,9 @@ class CoralBase {
         const timeDistance = ((timestamp.unix() - minDate.unix()) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2));
       
         const branchAngle = relativeAngle + (maxAngleOffset * side);
-
         const pos = plotPolygonPoint(x, y, relativeAngle, numSides, timeDistance);
-        svg
+
+        container
           .append('line')
           .attr('x1', pos.x)
           .attr('y1', pos.y)
@@ -154,45 +153,51 @@ class CoralBase {
           .attr('stroke-linecap', 'round')
           .attr('stroke-width', thickness);
         
-        svg
+        container
           .append('circle')
           .attr('cx', pos.x)
           .attr('cy', pos.y)
           .attr('fill', "white")
           .attr('r', thickness);
-        feature.childFeatures.forEach((child: Feature, i) => {
-          let factor = 1;
-          if (i % 2 === 0) factor = -1;
-          this.drawBranch(pos.x, pos.y, width, height, child, thickness * .65, color, childDepth + 1, factor, branchAngle, numSides, minDate, maxDate);
-        });
 
-  }
+        feature.childFeatures.forEach((child: Feature, i) => {
+            let factor = 1;
+            if (i % 2 === 0) factor = -1;
+            this.drawBranch(container, pos.x, pos.y, width, height, child, thickness * .65, color, childDepth + 1, factor, branchAngle, numSides, minDate, maxDate);
+        });
+    }
 }
 
-// I asked the parsing team to give us a Category[] object so we can just use it directly in the Coral component without additional transformation
 export default function Coral({width, height, categories}) {
     const ref = createRef<SVGElement>();
 
-    const coral = new CoralBase(width, height, ref, categories);
-
     useEffect(() => {
-      coral.draw();
-      if (!ref) return;
-      const svg = d3.select(ref.current);
+        const coral = new CoralBase(width, height, ref, categories);
+        coral.draw();
 
-      // for (let i = 0; i < 1000; i++) {
-      //   const pos = plotPolygonPoint((i / 1000) * (2 * Math.PI), 3, 150);
-      //   svg
-      //     .append('circle')
-      //     .attr('cx', (width/2) + pos.y)
-      //     .attr('cy', (height/2) - pos.x)
-      //     .attr('fill', 'white')
-      //     .attr('r', 5);
-      // }
-    })
-  
-      
-  
+        if (!ref.current) return;
+
+        const svg = d3.select(ref.current);
+        const container = svg.select<SVGGElement>('.zoom-container');
+
+        const zoom = d3.zoom<SVGSVGElement, unknown>()
+            .scaleExtent([0.1, 10]) // adjust min/max zoom as needed
+            .on("zoom", (event) => {
+                container.attr("transform", event.transform);
+            });
+
+        svg.call(zoom);
+
+        // for (let i = 0; i < 1000; i++) {
+        //   const pos = plotPolygonPoint((i / 1000) * (2 * Math.PI), 3, 150);
+        //   svg
+        //     .append('circle')
+        //     .attr('cx', (width/2) + pos.y)
+        //     .attr('cy', (height/2) - pos.x)
+        //     .attr('fill', 'white')
+        //     .attr('r', 5);
+        // }
+    }, [categories, width, height]);
+
     return <svg width={width} height={height} ref={ref} />;
-  }
-  
+}
