@@ -65,7 +65,7 @@ const minMaxFeatureDate = (features: Feature[]) => {
     return [minDate, maxDate];
 }
 
-const plotPolygonPoint = (angle: number, sides: number, radius: number) => {
+const plotPolygonPoint = (x: number, y: number, angle: number, sides: number, radius: number) => {
 	const sectorAngle = 2 * Math.PI / sides;
 	const sideAngle = sectorAngle * Math.round(angle / sectorAngle);	
 	
@@ -78,8 +78,8 @@ const plotPolygonPoint = (angle: number, sides: number, radius: number) => {
 	const sideNormalY = Math.sin(sideAngle);
 
     return {
-        x: sideNormalX * forward - sideNormalY * sideward,
-        y: sideNormalY * forward + sideNormalX * sideward,
+        x: (sideNormalX * forward - sideNormalY * sideward) + x,
+        y: (sideNormalY * forward + sideNormalX * sideward) + y,
     }
 }
 
@@ -107,7 +107,6 @@ class CoralBase {
         svg.selectAll('*').remove();
         this.categories.forEach((category: Category, i) => {
             const angle = (((2 * Math.PI)/this.categories.length) * i) - (Math.PI / 2);
-            const branchAngle = ((2 * Math.PI)/this.categories.length) / 4;
             const thickness = 5;
             const color = rainbow(this.categories.length, i);
             const length = 275;
@@ -123,46 +122,68 @@ class CoralBase {
             category.features.forEach((feature: Feature, j) => {
                 let factor = 1;
                 if (j % 2 === 0) factor = -1;
-                this.drawBranch(this.width, this.height, feature, thickness * .85, rainbow(this.categories.length, i), branchAngle * factor, angle, this.categories.length, this.minDate, this.maxDate);
-            })
+                this.drawBranch(this.width / 2, this.height / 2, this.width, this.height, feature, thickness * .85, rainbow(this.categories.length, i), 0, factor, angle, this.categories.length, this.minDate, this.maxDate);
+            });
             
         });
     }
 
-    drawBranch(width: number, height: number, feature: Feature, thickness: number, color: string, branchAngle: number, relativeAngle: number, numSides: number, minDate: dayjs.Dayjs, maxDate: dayjs.Dayjs) {
+    drawBranch(x: number, y: number, width: number, height: number, feature: Feature, thickness: number, color: string, childDepth: number, side: number, relativeAngle: number, numSides: number, minDate: dayjs.Dayjs, maxDate: dayjs.Dayjs) {
         if (!this.svgRef) return;
         const svg = d3.select(this.svgRef.current);
-        const branchLength = 100;
+        const branchLength = 225;
+        const maxAngleOffset = ((Math.PI * 2) / numSides) / (2 * (childDepth + 2));
+        
         const timeDistance = ((feature.timestamp.unix() - minDate.unix()) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2));
       
-        const pos = plotPolygonPoint(relativeAngle + (Math.PI / 2), numSides, timeDistance);
-        const originOffset = {
-            x: (width / 2) + pos.y,
-            y: (height / 2) - pos.x
-        }
+        const branchAngle = relativeAngle + (maxAngleOffset * side);
+
+        const pos = plotPolygonPoint(x, y, relativeAngle, numSides, timeDistance);
         svg
           .append('line')
-          .attr('x1', originOffset.x)
-          .attr('y1', originOffset.y)
-          .attr('x2', (branchLength * Math.cos(relativeAngle + branchAngle)) + originOffset.x)
-          .attr('y2', (branchLength * Math.sin(relativeAngle + branchAngle)) + originOffset.y)
+          .attr('x1', pos.x)
+          .attr('y1', pos.y)
+          .attr('x2', (branchLength * Math.cos(branchAngle)) + pos.x)
+          .attr('y2', (branchLength * Math.sin(branchAngle)) + pos.y)
           .attr('stroke', color)
           .attr('stroke-linecap', 'round')
           .attr('stroke-width', thickness);
         
         svg
           .append('circle')
-          .attr('cx', originOffset.x)
-          .attr('cy', originOffset.y)
+          .attr('cx', pos.x)
+          .attr('cy', pos.y)
           .attr('fill', "white")
           .attr('r', thickness);
         feature.childFeatures.forEach((child: Feature, i) => {
-          
-          const newBranchAngle = branchAngle / 4;
-          this.drawBranch(width, height, child, thickness * .65, color, newBranchAngle, branchAngle, numSides, minDate, maxDate);
-              
+          let factor = 1;
+          if (i % 2 === 0) factor = -1;
+          this.drawBranch(pos.x, pos.y, width, height, child, thickness * .65, color, childDepth + 1, factor, branchAngle, numSides, minDate, maxDate);
         });
 
+      // const defs = svg.append('defs');
+
+      // const filter = defs
+      //   .append('filter')
+      //   .attr('id', 'glow');
+
+      // filter
+      //   .append('feGaussianBlur')
+      //   .attr('stdDeviation', '3.5')
+      //   .attr('result', 'coloredBlur');
+
+      // const feMerge = filter.append('feMerge');
+      // feMerge
+      //   .append('feMergeNode')
+      //   .attr('in', 'coloredBlur');
+      // feMerge
+      //   .append('feMergeNode')
+      //   .attr('in', 'SourceGraphic');
+      // d3
+      //   .selectAll('line')
+      //   .style('filter', 'url(#glow)')
+
+      
             
     }
 }
@@ -171,10 +192,6 @@ export default function Coral({width, height}) {
   const ref = createRef<SVGElement>();
   const categories: Category[] = [
     {
-        name: "User Experience",
-        features: []
-    },
-    {
         name: "Networking",
         features: [
           {
@@ -182,7 +199,38 @@ export default function Coral({width, height}) {
               {
                 childFeatures: [],
                 descr: "",
-                timestamp: dayjs().add(3, 'year').add(2, 'month'),
+                timestamp: dayjs().add(3, 'year').add(1, 'month'),
+              },
+              {
+                childFeatures: [],
+                descr: "",
+                timestamp: dayjs().add(4, 'year').add(3, 'month'),
+              },
+              {
+                childFeatures: [],
+                descr: "",
+                timestamp: dayjs().add(5, 'year').add(1, 'month'),
+              }
+            ],
+            descr: "",
+            timestamp: dayjs().add(3, 'year'),
+          },
+          {
+            childFeatures: [
+              {
+                childFeatures: [],
+                descr: "",
+                timestamp: dayjs().add(3, 'year').add(1, 'month'),
+              },
+              {
+                childFeatures: [],
+                descr: "",
+                timestamp: dayjs().add(3, 'year').add(3, 'month'),
+              },
+              {
+                childFeatures: [],
+                descr: "",
+                timestamp: dayjs().add(6, 'year').add(1, 'month'),
               }
             ],
             descr: "",
@@ -191,23 +239,58 @@ export default function Coral({width, height}) {
         ]
     },
     {
-        name: "Audio",
+        name: "Networking",
         features: [
-            {
-                childFeatures: [],
-                descr: "",
-                timestamp: dayjs().add(3, 'year'),
-            },
-            {
-                childFeatures: [],
-                descr: "",
-                timestamp: dayjs().add(4, 'year'),
-            },
-            {
-                childFeatures: [],
-                descr: "",
-                timestamp: dayjs().add(4, 'year').add(6, 'month'),
-            }
+          {
+            childFeatures: [
+            ],
+            descr: "",
+            timestamp: dayjs().add(3, 'year'),
+          }
+        ]
+    },
+    {
+        name: "Networking",
+        features: [
+          {
+            childFeatures: [
+            ],
+            descr: "",
+            timestamp: dayjs().add(3, 'year'),
+          }
+        ]
+    },
+    {
+        name: "Networking",
+        features: [
+          {
+            childFeatures: [
+            ],
+            descr: "",
+            timestamp: dayjs().add(3, 'year'),
+          }
+        ]
+    },
+    {
+        name: "Networking",
+        features: [
+          {
+            childFeatures: [
+            ],
+            descr: "",
+            timestamp: dayjs().add(3, 'year'),
+          }
+        ]
+    },
+    {
+        name: "Networking",
+        features: [
+          {
+            childFeatures: [
+            ],
+            descr: "",
+            timestamp: dayjs().add(3, 'year'),
+          }
         ]
     },
     
@@ -220,11 +303,11 @@ export default function Coral({width, height}) {
     // if (!ref) return;
     // const svg = d3.select(ref.current);
     // for (let i = 0; i < 1000; i++) {
-    //   const pos = plotPolygonPoint((i / 1000) * (2 * Math.PI), 3, 150);
+    //   const pos = plotPolygonPoint(width/2, height/2, (i / 1000) * (2 * Math.PI), 3, 100);
     //   svg
     //     .append('circle')
-    //     .attr('cx', (width/2) + pos.y)
-    //     .attr('cy', (height/2) - pos.x)
+    //     .attr('cx', pos.y)
+    //     .attr('cy', pos.x)
     //     .attr('fill', 'white')
     //     .attr('r', 5);
     // }
