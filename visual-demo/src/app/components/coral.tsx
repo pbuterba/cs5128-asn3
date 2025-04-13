@@ -112,6 +112,57 @@ class CoralBase {
                 this.drawBranch(container, this.width / 2, this.height / 2, this.width, this.height, feature, thickness * .85, rainbow(this.categories.length, i), 0, factor, angle, this.categories.length, this.minDate, this.maxDate);
             });
         });
+
+        const legendPadding = 10;
+        const legendItemHeight = 20;
+        const legendHeight = this.categories.length * legendItemHeight;
+        const maxTextWidth = this.categories.reduce((maxWidth, category) => {
+            const textWidth = category.name.length * 7; // rough estimate for each character's width (may need to change with font choice/size)
+            return Math.max(maxWidth, textWidth);
+        }, 0);
+        const legendWidth = maxTextWidth + 16; // 16 for the size of the rectangle
+
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr(
+                "transform",
+                `translate(${20}, ${this.height - 20 - legendHeight})`
+            );
+
+        // add background rectangle first so it is behind the entries
+        legend.append("rect")
+            .attr("x", -legendPadding)
+            .attr("y", -legendPadding)
+            .attr("width", legendWidth + legendPadding * 2)
+            .attr("height", legendHeight + legendPadding * 2)
+            .attr("fill", "#111")
+            .attr("stroke", "#444")
+            .attr("stroke-width", 1)
+            .attr("rx", 8)
+            .attr("ry", 8)
+            .attr("opacity", 0.8);
+
+        this.categories.forEach((category, i) => {
+            const color = rainbow(this.categories.length, i);
+
+            const group = legend.append("g")
+                .attr("transform", `translate(0, ${i * legendItemHeight})`);
+
+            // will probably need to change this along with the item heigh to match the UI scale better when integrated
+            group.append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", 16)
+                .attr("height", 16)
+                .attr("fill", color);
+
+            group.append("text")
+                .attr("x", 24)
+                .attr("y", 13)
+                .attr("fill", "white")
+                .attr("font-size", "12px") // will probably need to change to match the UI stuff
+                .text(category.name);
+        });
     }
 
     drawBranch(container: d3.Selection<SVGGElement, unknown, null, undefined>, x: number, y: number, width: number, height: number, feature: Feature, thickness: number, color: string, childDepth: number, side: number, relativeAngle: number, numSides: number, minDate: dayjs.Dayjs, maxDate: dayjs.Dayjs) {
