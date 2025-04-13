@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-// import Sidebar from "../app/Sidebar";   // Corrected import path
+import Sidebar from "../app/Sidebar";   // Corrected import path
 import CoralPlot from "../app/CoralPlot";   // Corrected import path
 import "../app/globals.css"; // Correct path to styles directory
 
@@ -83,7 +83,8 @@ export default function Home() {
   return (
     <div className="layout-container">
       {/* <Sidebar /> */}
-
+      <Sidebar />
+      
       <div className="main-content">
         <h1>Untitled Coral Plot of WebEx Features</h1>
         
