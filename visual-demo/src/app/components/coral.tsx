@@ -136,11 +136,14 @@ class CoralBase {
     }
 
     drawBranch(container: d3.Selection<SVGGElement, unknown, null, undefined>, x: number, y: number, width: number, height: number, feature: Feature, thickness: number, color: string, childDepth: number, side: number, relativeAngle: number, numSides: number, minDate: dayjs.Dayjs, maxDate: dayjs.Dayjs) {
-        const branchLength = 225;
+        // const branchLength = 300;
         const maxAngleOffset = ((Math.PI * 2) / numSides) / (2 * (childDepth + 2));
         
         const timestamp = dayjs(feature.timestamp);
         const timeDistance = ((timestamp.unix() - minDate.unix()) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2));
+
+        const [_, maxBranchTime] = minMaxFeatureDate([feature]);
+        const branchLength = (((maxBranchTime.add(1, 'year').unix() - timestamp.unix())) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2))
       
         const branchAngle = relativeAngle + (maxAngleOffset * side);
         const pos = plotPolygonPoint(x, y, relativeAngle, numSides, timeDistance);
@@ -169,9 +172,7 @@ class CoralBase {
           });
 
         feature.childFeatures.forEach((child: Feature, i) => {
-            let factor = 1;
-            if (i % 2 === 0) factor = -1;
-            this.drawBranch(container, pos.x, pos.y, width, height, child, thickness * .65, color, childDepth + 1, factor, branchAngle, numSides, minDate, maxDate);
+            this.drawBranch(container, pos.x, pos.y, width, height, child, thickness * .5, color, childDepth + 1, side, branchAngle, numSides, minDate, maxDate);
         });
     }
 }
