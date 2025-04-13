@@ -19,189 +19,151 @@ interface FeatureDefinition {
   children: FeatureId[];
 }
 
-//const openai = new OpenAI({ apiKey: process.env.GPT_KEY });
+const openai = new OpenAI({ apiKey: process.env.GPT_KEY });
 
-function csvToJson1WithIds(csvData: string, outputPath: string): void {
-  const lines = csvData.trim().split("\n");
-  if (lines.length < 2) {
-    console.error("CSV must contain at least a header and one data row.");
-    return;
-  }
+const query = (numCategories: number) => `
+  Analyze the features from the embedded JSON data in the vector store. Based on the meaning/semantics of those features, define exactly ${numCategories} distinct and meaningful category names. Assign one of these 4 categories to each feature. For each feature, find related features (based on similarity) and list their IDs as children.
 
-  const headers = lines[0].split(",").map((h) => h.trim());
-  const outputLines: string[] = [];
+Important constraints:
+- Only 4 categories are allowed.
+- Every feature must have exactly one of these ${numCategories} categories.
+- Children must be feature IDs (numbers).
+- A feature cannot appear as a child for more than one parent.
+- Avoid circular dependencies: A feature cannot be a child of a feature that is already its child (directly or indirectly). In other words, if feature A is a child of feature B (or any of its descendants), then feature B and any of its ancestors cannot be assigned as children of feature A.
 
-  for (let i = 1; i < lines.length; i++) {
-    const row = lines[i].split(",").map((cell) => cell.trim());
-    if (row.length !== headers.length) continue; // skip malformed rows
+Return a single JSON object with:
+- A\`categories\` array (listing the ${numCategories} categories — each only once).
+- A \`features\` array where each feature includes:
+  - Its \`id\`
+  - Its \`category\`
+  - Its \`children\` (an array of related feature IDs)
 
-    const rowObject: Record<string, string | number> = { id: i };
-    headers.forEach((header, idx) => {
-      rowObject[header] = row[idx];
-    });
-
-    outputLines.push(JSON.stringify(rowObject));
-  }
-
-  fs.writeFileSync(outputPath, outputLines.join("\n"), "utf-8");
-  console.log(`Wrote ${outputLines.length} records to ${outputPath}`);
+Expected Output Format (example):
+{
+  "categories": ["Performance", "Usability", "Security", "Integration"],
+  "features": [
+    {"id": 1, "category": "Performance", "children": [3, 4]},
+    {"id": 2, "category": "Security", "children": [5]},
+    {"id": 3, "category": "Usability", "children": []},
+    {"id": 4, "category": "Integration", "children": []},
+    {"id": 5, "category": "Performance", "children": []}
+  ]
 }
 
-function query(numCategories: string, fileId: string): string {
-  //This is going to change a lot
-  return (
-    "You are a precise assistant that returns only structured JSON. You do not explain anything. You return a clean and valid JSON object exactly in the specified format." +
-    `Your task is to:
-    1. Derive exactly ${numCategories} meaningful and distinct category names based on feature semantics.
-    2. Assign one of these categories to each feature.
-    3. Identify related features and list their IDs as 'children' for each feature (based on similarity).
-    4. Only return categories in first object response, but use the same set of categories for every response.
+Do not include any explanations or extra text — just return a single, valid JSON object string.
+`;
 
-    {"categories": ["Category A", "Category B", "..."], "features": [{"id": 1, "category": "Category A", "children": [4, 5]}, {"id": 2, "category": "Category B", "children": []}]}
-
-    ### Rules:
-    - Derive exactly ${numCategories} categories and use only those.
-    - Do not create extra or missing categories.
-    - Each feature gets one category.
-    - Children must be identified by feature ID (numeric).
-    - Children are related features based on similarity.
-    - Do not include any explanations.
-    - Output must be valid JSON.
-    - A single response only contains 10 feature objects.
-    - Only the first response should contain the categories, but the same set of categories should be used when categorizing every feature in the list.
-    - The response should only be a json object as a string that we can parse using JSON.parse.
-    `
+function getAssistantIdAndFileId(fileName: string): {
+  assistantId: string;
+  fileId: string;
+} {
+  const mappingFileLocation = "./data/file-name-mappings.json";
+  const assistants = fs.readFileSync(mappingFileLocation, "utf-8");
+  const assistant = JSON.parse(assistants).find(
+    (assistant: any) => assistant.fileName === fileName
   );
-}
-
-async function gptCall(
-  numCategories: string,
-  fileName: string
-): Promise<Features> {
-  let requestNumber = 0;
-  let features: Features = { categories: [], features: [] };
-
-  // while (requestNumber < globalCSV.length / 10) {
-  //   const response = await openai.responses.create({
-  //     model: "gpt-4o-mini",
-  //     input: requestNumber === 0 ? query("5", globalCSV) : "again",
-  //   });
-  //   console.log(response);
-  //   if (response) {
-  //     parseFeatures(response.output_text, requestNumber, features);
-  //   }
-  //   requestNumber += 1;
-  // }
-  return features;
-}
-
-async function fakeGptCall(
-  numCategories: string,
-  fileName: string
-): Promise<any> {
   return {
-    categories: ["video conferencing", "project management", "analytics"],
-    features: [
-      {
-        id: 1,
-        category: "video conferencing",
-        children: [
-          {
-            id: 2,
-            category: "project management",
-            children: [
-              {
-                id: 4,
-                category: "project management",
-                children: [],
-                metadata: {
-                  description:
-                    "This feature allows users to schedule and join meetings seamlessly.",
-                  date: "01-02-2022",
-                },
-              },
-              {
-                id: 5,
-                category: "analytics",
-                children: [],
-                metadata: {
-                  description:
-                    "This feature allows users to schedule and join meetings seamlessly.",
-                  date: "01-02-2022",
-                },
-              },
-              {
-                id: 6,
-                category: "project management",
-                children: [],
-                metadata: {
-                  description:
-                    "This feature allows users to schedule and join meetings seamlessly.",
-                  date: "01-02-2022",
-                },
-              },
-            ],
-            metadata: {
-              description:
-                "This feature allows users to schedule and join meetings seamlessly.",
-              date: "01-02-2022",
-            },
-          },
-          {
-            id: 3,
-            category: "analytics",
-            children: [],
-            metadata: {
-              description:
-                "This feature allows users to schedule and join meetings seamlessly.",
-              date: "01-02-2022",
-            },
-          },
-        ],
-        metadata: {
-          description:
-            "This feature allows users to schedule and join meetings seamlessly.",
-          date: "01-02-2022",
-        },
-      },
-    ],
+    assistantId: assistant ? assistant.assistantId : "",
+    fileId: assistant ? assistant.fileId : "",
   };
 }
 
-function parseFeatures(
-  res: string,
-  requestNum: number,
-  currentFeatures: Features
-): void {
-  let cleaned = res
-    .replace(/^```json\s*/, "")
-    .replace(/```$/, "")
-    .trim();
-  let parseRes = JSON.parse(cleaned);
-
-  if (requestNum === 0) {
-    currentFeatures.categories = parseRes.categories;
-  }
-  parseRes?.features?.map((feature: any): FeatureDefinition => {
-    return {
-      id: feature.id,
-      category: feature.category,
-      children: feature.children,
-    } as FeatureDefinition;
+async function gptCall(
+  numCategories: number,
+  fileName: string
+): Promise<string> {
+  const { assistantId, fileId } = getAssistantIdAndFileId(fileName);
+  const thread = await openai.beta.threads.create({
+    messages: [
+      {
+        role: "user",
+        content: query(numCategories),
+        // Attach the new file to the message.
+        attachments: [{ file_id: fileId, tools: [{ type: "file_search" }] }],
+      },
+    ],
   });
 
-  currentFeatures.features = [...currentFeatures.features, parseRes?.features];
+  return new Promise((resolve, reject) => {
+    const streamController = openai.beta.threads.runs
+      .stream(thread.id, {
+        assistant_id: assistantId,
+      })
+      .on("messageDone", async (event) => {
+        try {
+          let response = "";
+          if (event.content[0].type === "text") {
+            const { text } = event.content[0];
+            const { annotations } = text;
+            const citations: string[] = [];
+            let index = 0;
+            for (let annotation of annotations) {
+              text.value = text.value.replace(annotation.text, `[${index}]`);
+              const { file_citation } = annotation as any;
+              if (file_citation) {
+                const citedFile = await openai.files.retrieve(
+                  file_citation.file_id
+                );
+                citations.push(`[${index}] ${citedFile.filename}`);
+              }
+              index++;
+            }
+            response = text.value;
+          }
+          const features = parseFeatures(response);
+          resolve(features);
+        } catch (error) {
+          reject(error);
+        }
+      });
+  });
+}
+
+function parseFeatures(res: string): any {
+  let cleaned = res
+    .replace(/^```(?:json)?\s*\n?/, "")
+    .replace(/\n?```$/, "")
+    .trim();
+
+  if (!cleaned) {
+    throw new Error("Input string is empty after cleaning.");
+  }
+
+  let parseRes;
+  try {
+    parseRes = JSON.parse(cleaned);
+  } catch (error) {
+    console.error("Error parsing JSON. Cleaned input:", cleaned);
+    throw error;
+  }
+
+  if (!parseRes.features || !Array.isArray(parseRes.features)) {
+    throw new Error(
+      "Invalid JSON: Expected an object with a 'features' array."
+    );
+  }
+
+  return {
+    categories: parseRes.categories,
+    features: parseRes.features.map(
+      (feature: any): FeatureDefinition => ({
+        id: feature.id,
+        category: feature.category,
+        children: feature.children,
+      })
+    ),
+  };
 }
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) {
-  const numCategories = req.query.numCategories ?? "";
-  const csv = req.body.csv ?? "";
+  const numCategories = Number(req.query.numCategories) ?? 4;
+  const fileName = req.body.fileName ?? "";
   return new Promise<void>((resolve, reject) => {
-    // gptCall(numCategories as string, csv)
-    fakeGptCall(numCategories as string, csv)
+    gptCall(numCategories, fileName as string)
+      //fakeGptCall(numCategories as string, "")
       .then((response) => {
         res.statusCode = 200;
         res.end(JSON.stringify(response));
