@@ -42,104 +42,124 @@ a {
 }
 
 /* globals.css */
-
 body {
   margin: 0;
   font-family: var(--font-geist-sans);
-  background-color: #121212; /* Dark background color */
-  color: #fff; /* Light text color */
+  background-color: #121212;
+  color: #fff;
 }
 
 /* General Layout */
-/* Ensure the layout has a dark background with enough padding */
 .layout-container {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   background-color: #1f1f1f;
   padding: 20px;
-  height: 100vh;  /* Ensure it takes up full height */
+  height: 100vh;
 }
 
-.sidebar {
-  width: 250px;
-  background-color: #121212;
-  padding: 20px;
-  margin-right: 20px;
-  color: white;
-}
 
 .main-content {
   flex-grow: 1;
-  font-size: 40px;
+  font-size: 20px;
   padding: 20px;
   background-color: #2c2c2c;
   border-radius: 10px;
   overflow-y: auto;
 }
 
-/* globals.css */
-
-/* Styling for filters section */
+/* Modify the filters section */
 .filters-section {
   display: flex;
-  justify-content: space-between; /* Aligns the filters in a row */
-  gap: 20px; /* Space between each filter */
+  justify-content: flex-start; /* Align elements to the start */
+  gap: 200px; /* Reduce the space between the input fields */
   margin-top: 20px;
-  flex-wrap: wrap; /* Makes sure filters move to the next line on smaller screens */
+  flex-wrap: nowrap; /* Ensure that they do not wrap */
+  align-items: center; /* Vertically center the filters */
+  padding-bottom: 30px;
 }
 
+/* Each filter div */
 .filters-section div {
   display: flex;
-  flex-direction: column; /* Stack label and input vertically */
+  flex-direction: column; /* Stack the label and input vertically */
+  flex-grow: 1;  /* Allow the filters to grow and take available space */
+  max-width: 150px; 
+  gap: 5px;/* Optional: set a max width for the filter inputs */
 }
 
-.filters-section input, .filters-section button {
+
+.filters-section input,
+.filters-section button {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  width: 200px;
 }
+
 .filters-section button {
   background-color: #007bff;
   color: white;
   cursor: pointer;
 }
+
 .filters-section button:hover {
   background-color: #0056b3;
 }
 
-/* Main content and layout */
-.layout-container {
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
+/* Ensure the plot has a background and size */
+.plot {
+  width: 80%;        /* Full width of the parent container */
+  height: 1100px;      /* Set a fixed height for the plot */
+  background-color: #161616;  /* Black background for the plot area */
+  color: white;       /* White text color for the placeholder */
+  display: flex;      /* Flex to center content */
+  justify-content: center;  /* Horizontally center the text */
+  align-items: center;      /* Vertically center the text */
+  border-radius: 10px;  /* Optional: rounded corners */
 }
 
+.plot p {
+  font-size: 20px;    /* Set a reasonable font size for the text */
+  text-align: center; /* Center the text */
+}
+
+/* Sidebar Styles */
 .sidebar {
-  width: 250px;
   background-color: #121212;
   padding: 20px;
-  margin-right: 20px;
+  width: 250px;
   color: white;
 }
 
-.main-content {
-  flex-grow: 1;
-  padding: 20px;
-  background-color: #2c2c2c;
-  border-radius: 10px;
-  overflow-y: auto;
-}
-
-/* Ensures that the filter section aligns horizontally */
-.filters-container {
+.dropdown-header {
   display: flex;
   justify-content: space-between;
-  gap: 20px; /* Adjust the gap between items */
-  flex-wrap: wrap; /* Ensures the items wrap when screen size is small */
+  cursor: pointer;
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 5px;
+  background-color: #1f1f1f;
+  margin-bottom: 10px;
 }
 
-.filters-container > * {
-  flex: 1; /* This will allow the filters to grow and shrink as necessary */
-  max-width: 250px; /* You can adjust the max width to your preference */
+.dropdown-header span {
+  font-size: 16px;
 }
 
+.dropdown-list {
+  list-style-type: none;
+  padding-left: 20px;
+}
+
+.dropdown-list li {
+  padding: 8px;
+  cursor: pointer;
+  background-color: #2c2c2c;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+
+.dropdown-list li:hover {
+  background-color: #3c3c3c;
+}

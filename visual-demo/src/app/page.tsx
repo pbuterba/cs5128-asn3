@@ -1,10 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import Sidebar from "../app/Sidebar";   // Corrected import path
+// import Sidebar from "../app/Sidebar";   // Corrected import path
 import CoralPlot from "../app/CoralPlot";   // Corrected import path
-import Filter from "../app/Filter";   // Corrected import path
-import "../app/globals.css"; // This assumes globals.css is in src/
- // Correct path to styles directory
+import "../app/globals.css"; // Correct path to styles directory
+
 
 
 export default function Home() {
@@ -33,7 +32,7 @@ export default function Home() {
   ];
 
   const [fileNames, setFileNames] = useState([]);
-  const [features, setFeatures] = useState<string[]>([]); // Correctly initialize as an empty array
+  const [features, setFeatures] = useState<string[]>([]);
 
   // Handle file upload
   useEffect(() => {
@@ -54,7 +53,7 @@ export default function Home() {
       },
     })
       .then((response) => response.json())
-      .then((json) => setFileNames(json)); // Set available file names in state
+      .then((json) => setFileNames(json));
   }, []);
 
   useEffect(() => {
@@ -67,26 +66,24 @@ export default function Home() {
     })
       .then((response) => response.json())
       .then((json) => {
-        console.log("Features data:", json); // Inspect the response format
+        console.log("Features data:", json);
         if (Array.isArray(json)) {
-          setFeatures(json); // Set features if the response is an array
+          setFeatures(json);
         } else {
           console.error("Invalid data format for features:", json);
-          setFeatures([]); // Fallback to an empty array if the data isn't valid
+          setFeatures([]);
         }
       })
       .catch((error) => {
         console.error("Error fetching features:", error);
-        setFeatures([]); // Fallback in case of an error
+        setFeatures([]);
       });
   }, []);
 
   return (
     <div className="layout-container">
-      {/* Sidebar */}
-      <Sidebar />
+      {/* <Sidebar /> */}
 
-      {/* Main Content */}
       <div className="main-content">
         <h1>Untitled Coral Plot of WebEx Features</h1>
         
@@ -109,15 +106,11 @@ export default function Home() {
               <label>End Date</label>
               <input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
             </div>
-          </div>
+        </div>
 
-
-        {/* Coral Plot */}
         <CoralPlot />
         
-        {/* Displaying Available File Names */}
         <div>
-          {/* <h2>Available Files:</h2> */}
           <ul>
             {fileNames.map((fileName: string, index: number) => (
               <li key={index}>{fileName}</li>
@@ -125,9 +118,7 @@ export default function Home() {
           </ul>
         </div>
 
-        {/* Displaying Features */}
         <div>
-          {/* <h2>Provided Features:</h2> */}
           <ul>
             {Array.isArray(features) && features.map((feature: string, index: number) => (
               <li key={index}>{feature}</li>

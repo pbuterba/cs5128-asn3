@@ -1,21 +1,46 @@
-// src/components/Sidebar.tsx
+import React, { useState } from 'react';
 
-import React from 'react';
-
+// Sidebar component
 const Sidebar = () => {
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  const toggleDropdown = (name: string) => {
+    setActiveDropdown((prev) => (prev === name ? null : name));
+  };
+
+  const categories = [
+    "Logging",
+    "Networking",
+    "User Experience",
+    "Visual Fidelity",
+    "Communication",
+    "Audio"
+  ];
+
   return (
     <div className="sidebar">
-      <h2>Filters</h2>
-      {/* Add filter options, search bars, or other interactive elements */}
-      <div className="filters">
-        <label>Filter by Category:</label>
-        <select>
-          <option>Category 1</option>
-          <option>Category 2</option>
-          <option>Category 3</option>
-        </select>
-      </div>
-      {/* Add other sidebar content like navigation, links, etc. */}
+      <ul>
+        {categories.map((category) => (
+          <li key={category}>
+            <div
+              className="dropdown-header"
+              onClick={() => toggleDropdown(category)}
+            >
+              <span>{category}</span>
+              <span>{activeDropdown === category ? '▲' : '▼'}</span>
+            </div>
+            {activeDropdown === category && (
+              <ul className="dropdown-list">
+                {[...Array(5)].map((_, index) => (
+                  <li key={`${category}-feature-${index}`}>
+                    <span>Feature {index + 1}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
