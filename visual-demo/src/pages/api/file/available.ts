@@ -3,25 +3,10 @@ import { OpenAI } from "openai";
 import fs from "fs";
 import parseCSV from "csv-parser";
 
-const openai = new OpenAI({ apiKey: process.env.GPT_KEY });
-
-async function gptCall(): Promise<void> {
-  const job = await openai.fineTuning.jobs.create({
-    training_file: "test.jsonl",
-    model: "gpt-4o-2024-08-06",
-    method: {
-      type: "dpo",
-      dpo: {
-        hyperparameters: { beta: 0.1 },
-      },
-    },
-  });
-
-  console.log(job);
-}
-
-async function fakeGPTCall(): Promise<string[]> {
-  return ["file1", "file2", "file3"];
+async function gptCall(): Promise<string[]> {
+  const mappingFileLocation = "./data/file-name-mappings.json";
+  const assistants = JSON.parse(fs.readFileSync(mappingFileLocation, "utf-8"));
+  return assistants.map((assistant: any) => assistant.fileName);
 }
 
 export default async function handler(
@@ -29,8 +14,7 @@ export default async function handler(
   res: NextApiResponse<any>
 ) {
   return new Promise<void>((resolve, reject) => {
-    //gptCall()
-    fakeGPTCall()
+    gptCall()
       .then((response) => {
         res.statusCode = 200;
         res.end(JSON.stringify(response));
