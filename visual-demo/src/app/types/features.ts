@@ -4,7 +4,7 @@ export interface Feature {
    children: number[]
 }
 
-interface Metadata {
+export interface Metadata {
    date: Date,
    description: string
 }
