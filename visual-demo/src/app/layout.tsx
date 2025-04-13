@@ -1,7 +1,10 @@
+// src/app/layout.tsx
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+// Fonts
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -25,7 +28,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+        {/* Main Layout */}
+        <div className="layout-container">
+          {/* Sidebar */}
+          <div className="sidebar">
+            {/* Add Sidebar Content Here */}
+          </div>
+
+          {/* Main Content */}
+          <div className="main-content">
+            {children}
+          </div>
+        </div>
       </body>
     </html>
   );

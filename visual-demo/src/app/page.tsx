@@ -1,5 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
+import Sidebar from "../app/Sidebar";   // Corrected import path
+import CoralPlot from "../app/CoralPlot";   // Corrected import path
+import Filter from "../app/Filter";   // Corrected import path
+import "../app/globals.css"; // This assumes globals.css is in src/
+ // Correct path to styles directory
+
 
 export default function Home() {
   const exampleCsv = [
@@ -26,6 +32,10 @@ export default function Home() {
     "It delivers smooth integration with third-party productivity apps.,20-02-2022,marketing",
   ];
 
+  const [fileNames, setFileNames] = useState([]);
+  const [features, setFeatures] = useState<string[]>([]); // Correctly initialize as an empty array
+
+  // Handle file upload
   useEffect(() => {
     fetch("/api/file/upload", {
       method: "POST",
@@ -35,6 +45,7 @@ export default function Home() {
       .then((json) => console.log("File Created With Name:", json));
   }, []);
 
+  // Fetch available files
   useEffect(() => {
     fetch("/api/file/available", {
       method: "GET",
@@ -43,7 +54,7 @@ export default function Home() {
       },
     })
       .then((response) => response.json())
-      .then((json) => console.log("File Names available:", json));
+      .then((json) => setFileNames(json)); // Set available file names in state
   }, []);
 
   useEffect(() => {
@@ -55,12 +66,74 @@ export default function Home() {
       body: JSON.stringify({ fileName: "test", numCategories: 3 }),
     })
       .then((response) => response.json())
-      .then((json) => console.log("Provided Features:", json));
+      .then((json) => {
+        console.log("Features data:", json); // Inspect the response format
+        if (Array.isArray(json)) {
+          setFeatures(json); // Set features if the response is an array
+        } else {
+          console.error("Invalid data format for features:", json);
+          setFeatures([]); // Fallback to an empty array if the data isn't valid
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching features:", error);
+        setFeatures([]); // Fallback in case of an error
+      });
   }, []);
 
   return (
-    <div>
-      <h1>Next.js API</h1>
+    <div className="layout-container">
+      {/* Sidebar */}
+      <Sidebar />
+
+      {/* Main Content */}
+      <div className="main-content">
+        <h1>Untitled Coral Plot of WebEx Features</h1>
+        
+        {/* Filters Section */}
+        <div className="filters-section">
+          <div>
+            <label>Number of Categories</label>
+            <input type="number" defaultValue={6} />
+          </div>
+          <div>
+            <label>Filter</label>
+            <input type="text" placeholder="Filter String" />
+            <button>Filter</button>
+          </div>
+          <div>
+            <label>Start Date</label>
+            <input type="date" defaultValue="2024-08-01" />
+          </div>
+          <div>
+            <label>End Date</label>
+            <input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
+          </div>
+        </div>
+
+        {/* Coral Plot */}
+        <CoralPlot />
+        
+        {/* Displaying Available File Names */}
+        <div>
+          <h2>Available Files:</h2>
+          <ul>
+            {fileNames.map((fileName: string, index: number) => (
+              <li key={index}>{fileName}</li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Displaying Features */}
+        <div>
+          <h2>Provided Features:</h2>
+          <ul>
+            {Array.isArray(features) && features.map((feature: string, index: number) => (
+              <li key={index}>{feature}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }

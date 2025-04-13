@@ -25,9 +25,9 @@ body {
 }
 
 * {
-  box-sizing: border-box;
-  padding: 0;
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 a {
@@ -40,3 +40,110 @@ a {
     color-scheme: dark;
   }
 }
+
+/* globals.css */
+
+body {
+  margin: 0;
+  font-family: var(--font-geist-sans);
+  background-color: #121212; /* Dark background color */
+  color: #fff; /* Light text color */
+}
+
+/* General Layout */
+/* Ensure the layout has a dark background with enough padding */
+.layout-container {
+  display: flex;
+  flex-direction: row;
+  background-color: #1f1f1f;
+  padding: 20px;
+  height: 100vh;  /* Ensure it takes up full height */
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #121212;
+  padding: 20px;
+  margin-right: 20px;
+  color: white;
+}
+
+.main-content {
+  flex-grow: 1;
+  font-size: 40px;
+  padding: 20px;
+  background-color: #2c2c2c;
+  border-radius: 10px;
+  overflow-y: auto;
+}
+
+/* globals.css */
+
+/* Styling for filters section */
+.filters-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.filters-section div {
+  display: flex;
+  flex-direction: column;
+}
+
+.filters-section input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.filters-section button {
+  padding: 8px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.filters-section button:hover {
+  background-color: #0056b3;
+}
+
+/* Main content and layout */
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #121212;
+  padding: 20px;
+  margin-right: 20px;
+  color: white;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #2c2c2c;
+  border-radius: 10px;
+  overflow-y: auto;
+}
+
+/* Ensures that the filter section aligns horizontally */
+.filters-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px; /* Adjust the gap between items */
+  flex-wrap: wrap; /* Ensures the items wrap when screen size is small */
+}
+
+.filters-container > * {
+  flex: 1; /* This will allow the filters to grow and shrink as necessary */
+  max-width: 250px; /* You can adjust the max width to your preference */
+}
+
