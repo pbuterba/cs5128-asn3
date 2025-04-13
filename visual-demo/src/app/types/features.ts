@@ -13,5 +13,12 @@ export interface FeatureTreeNode {
    id: number,
    category: string,
    children: Feature[],
-   metadata: Metadata[]
+   metadata: Metadata
+}
+
+export interface FeatureData {
+   id: number,
+   description: string,
+   date: string,
+   category: string
 }

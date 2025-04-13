@@ -1,9 +1,58 @@
-import { Feature, FeatureTreeNode, Metadata } from "../types/features";
+import { readFileSync } from 'fs'
+import { Feature, FeatureTreeNode, FeatureData } from '../types/features';
 
-const metadataMap: Record<number, Metadata> = {
-  1: { description: "Hello Hello Hello...", date: "04-13-2025" },
-  2: { description: "Hello Hello...", date: "04-14-2025" },
-};
+export function makeTree(dataList: Feature[], fileName: string): FeatureTreeNode[] | null {
+   //Read JSONL file
+   let featureDataString: string;
+   try {
+      featureDataString = readFileSync('../../../data/' + fileName, 'utf8');
+   } catch(error) {
+      console.error("The file %s does not exist", fileName);
+      return null;
+   }
+
+   //Parse JSON
+   let featureData: FeatureData[];
+   try {
+      featureData = JSON.parse(featureDataString);
+   } catch(error) {
+      console.error("Data file %s contains invalid JSON", fileName);
+   }
+
+   let tree: FeatureTreeNode[] = [];
+   dataList.forEach((feature) =>  {
+      //Get metadata from file
+      let metadata: FeatureData | null = null;
+      for(let i = 0; i < featureData.length; i++) {
+         if(featureData[i].id == feature.id) {
+            metadata = featureData[i];
+            break;
+         }
+      }
+
+      //Check that metadata was found
+      if(metadata == null) {
+         console.error("Feature %i has no matching entry in data file %s", feature.id, fileName);
+         return null;
+      }
+
+      //Format tree node
+      const dateComponents: string[] = metadata.date.split("-");
+      let categoryNode: FeatureTreeNode = {
+         id: feature.id,
+         category: feature.category,
+         children: [],
+         metadata: {
+            date: new Date(parseInt(dateComponents[2]), parseInt(dateComponents[0]), parseInt(dateComponents[1])),
+            description: metadata.description
+         }
+      }
+      
+      //Check the rest of the list for children, and encorporate into tree structure - Ibrahim
+
+      //Add node to tree
+      tree.push(categoryNode);
+   });
 
 export function makeTree(dataList: Feature[]): FeatureTreeNode[] {
   const nodeMap: Record<number, FeatureTreeNode> = {};
