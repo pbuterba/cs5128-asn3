@@ -82,31 +82,27 @@ body {
 /* Styling for filters section */
 .filters-section {
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  justify-content: space-between; /* Aligns the filters in a row */
+  gap: 20px; /* Space between each filter */
   margin-top: 20px;
+  flex-wrap: wrap; /* Makes sure filters move to the next line on smaller screens */
 }
 
 .filters-section div {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Stack label and input vertically */
 }
 
-.filters-section input {
+.filters-section input, .filters-section button {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-
 .filters-section button {
-  padding: 8px;
   background-color: #007bff;
   color: white;
-  border: none;
-  border-radius: 5px;
   cursor: pointer;
 }
-
 .filters-section button:hover {
   background-color: #0056b3;
 }

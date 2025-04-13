@@ -92,31 +92,32 @@ export default function Home() {
         
         {/* Filters Section */}
         <div className="filters-section">
-          <div>
-            <label>Number of Categories</label>
-            <input type="number" defaultValue={6} />
+            <div>
+              <label>Number of Categories</label>
+              <input type="number" defaultValue={6} />
+            </div>
+            <div>
+              <label>Filter</label>
+              <input type="text" placeholder="Filter String" />
+              <button>Filter</button>
+            </div>
+            <div>
+              <label>Start Date</label>
+              <input type="date" defaultValue="2024-08-01" />
+            </div>
+            <div>
+              <label>End Date</label>
+              <input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
+            </div>
           </div>
-          <div>
-            <label>Filter</label>
-            <input type="text" placeholder="Filter String" />
-            <button>Filter</button>
-          </div>
-          <div>
-            <label>Start Date</label>
-            <input type="date" defaultValue="2024-08-01" />
-          </div>
-          <div>
-            <label>End Date</label>
-            <input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
-          </div>
-        </div>
+
 
         {/* Coral Plot */}
         <CoralPlot />
         
         {/* Displaying Available File Names */}
         <div>
-          <h2>Available Files:</h2>
+          {/* <h2>Available Files:</h2> */}
           <ul>
             {fileNames.map((fileName: string, index: number) => (
               <li key={index}>{fileName}</li>
@@ -126,7 +127,7 @@ export default function Home() {
 
         {/* Displaying Features */}
         <div>
-          <h2>Provided Features:</h2>
+          {/* <h2>Provided Features:</h2> */}
           <ul>
             {Array.isArray(features) && features.map((feature: string, index: number) => (
               <li key={index}>{feature}</li>
