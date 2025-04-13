@@ -111,7 +111,7 @@ body {
 
 /* Ensure the plot has a background and size */
 .plot {
-  width: 80%;        /* Full width of the parent container */
+  width:100%;        /* Full width of the parent container */
   height: 1100px;      /* Set a fixed height for the plot */
   background-color: #161616;  /* Black background for the plot area */
   color: white;       /* White text color for the placeholder */
