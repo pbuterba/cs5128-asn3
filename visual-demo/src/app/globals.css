@@ -70,35 +70,35 @@ body {
   width: 75%;  /* Adjust the 
 }
 
-/* Modify the filters section */
+/* Modify the filters section to display horizontally with more space */
 .filters-section {
   display: flex;
-  justify-content: flex-start; /* Align elements to the start */
-  gap: 200px; /* Reduce the space between the input fields */
+  flex-wrap: wrap; /* Allow wrapping if necessary */
+  gap: 30px; /* Increase space between the filter blocks */
   margin-top: 20px;
-  flex-wrap: nowrap; /* Ensure that they do not wrap */
-  align-items: center; /* Vertically center the filters */
-  padding-bottom: 30px;
+  justify-content: flex-start; /* Aligns filters to the left */
 }
 
-/* Each filter div */
+/* Each filter div will be flex container */
 .filters-section div {
   display: flex;
-  flex-direction: column; /* Stack the label and input vertically */
-  flex-grow: 1;  /* Allow the filters to grow and take available space */
-  max-width: 150px; 
-  gap: 5px;/* Optional: set a max width for the filter inputs */
+  flex-direction: row; /* Arrange input and button horizontally */
+  align-items: center; /* Align button and input vertically */
+  gap: 15px; /* Add more space between input and button */
+  flex-grow: 1;  /* Allow filters to grow */
+  max-width: 350px; /* Adjust width of the filter blocks */
 }
 
-
+/* Styling for filter input and button */
 .filters-section input,
 .filters-section button {
-  padding: 8px;
+  padding: 8px; /* Increase padding for better space */
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 200px;
+  width: 250px; /* Increase width for both input and button */
 }
 
+/* Styling for the filter button */
 .filters-section button {
   background-color: #007bff;
   color: white;
@@ -108,6 +108,7 @@ body {
 .filters-section button:hover {
   background-color: #0056b3;
 }
+
 
 /* Ensure the plot has a background and size */
 .plot {
@@ -169,4 +170,23 @@ body {
 
 .dropdown-list li:hover {
   background-color: #3c3c3c;
+}
+.csv-upload-section {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.csv-upload-section button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.csv-upload-section button:hover {
+  background-color: #0056b3;
+}
+
 }

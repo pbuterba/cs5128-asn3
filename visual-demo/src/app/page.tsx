@@ -4,8 +4,6 @@ import Sidebar from "../app/Sidebar";   // Corrected import path
 import CoralPlot from "../app/CoralPlot";   // Corrected import path
 import "../app/globals.css"; // Correct path to styles directory
 
-
-
 export default function Home() {
   const exampleCsv = [
     "description,date,category",
@@ -33,16 +31,33 @@ export default function Home() {
 
   const [fileNames, setFileNames] = useState([]);
   const [features, setFeatures] = useState<string[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // State for the file
 
   // Handle file upload
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setSelectedFile(file);
+      // You can then process the file (upload it to the server, read it, etc.)
+      console.log("File selected:", file);
+    }
+  };
+
+  // Handle file upload (example)
   useEffect(() => {
-    fetch("/api/file/upload", {
-      method: "POST",
-      body: JSON.stringify({ fileName: "test2", csv: exampleCsv }),
-    })
-      .then((response) => response.json())
-      .then((json) => console.log("File Created With Name:", json));
-  }, []);
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("csv", selectedFile);
+
+      fetch("/api/file/upload", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((json) => console.log("File Uploaded:", json))
+        .catch((error) => console.error("Error uploading file:", error));
+    }
+  }, [selectedFile]);
 
   // Fetch available files
   useEffect(() => {
@@ -56,61 +71,50 @@ export default function Home() {
       .then((json) => setFileNames(json));
   }, []);
 
-  useEffect(() => {
-    fetch("/api/features", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ fileName: "test", numCategories: 3 }),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        console.log("Features data:", json);
-        if (Array.isArray(json)) {
-          setFeatures(json);
-        } else {
-          console.error("Invalid data format for features:", json);
-          setFeatures([]);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching features:", error);
-        setFeatures([]);
-      });
-  }, []);
-
   return (
     <div className="layout-container">
-      {/* <Sidebar /> */}
       <Sidebar />
-      
+
       <div className="main-content">
         <h1>Untitled Coral Plot of WebEx Features</h1>
-        
+
+        {/* Add CSV Upload Button */}
+        <div className="csv-upload-section">
+          <button onClick={() => document.getElementById("file-input")?.click()}>
+            Upload CSV
+          </button>
+          <input
+            id="file-input"
+            type="file"
+            accept=".csv"
+            style={{ display: "none" }} // Hide the file input
+            onChange={handleFileUpload}
+          />
+        </div>
+
         {/* Filters Section */}
         <div className="filters-section">
-            <div>
-              <label>Number of Categories</label>
-              <input type="number" defaultValue={6} />
-            </div>
-            <div>
-              <label>Filter</label>
-              <input type="text" placeholder="Filter String" />
-              <button>Filter</button>
-            </div>
-            <div>
-              <label>Start Date</label>
-              <input type="date" defaultValue="2024-08-01" />
-            </div>
-            <div>
-              <label>End Date</label>
-              <input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
-            </div>
+          <div>
+            <label>Number of Categories</label>
+            <input type="number" defaultValue={6} />
+          </div>
+          <div>
+            <label>Filter</label>
+            <input type="text" placeholder="Filter String" />
+            <button>Filter</button>
+          </div>
+          <div>
+            <label>Start Date</label>
+            <input type="date" defaultValue="2024-08-01" />
+          </div>
+          <div>
+            <label>End Date</label>
+            <input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
+          </div>
         </div>
 
         <CoralPlot />
-        
+
         <div>
           <ul>
             {fileNames.map((fileName: string, index: number) => (

@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+"use client";
+import React, { useState } from "react";
 
 // Sidebar component
 const Sidebar = () => {
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [activeDropdowns, setActiveDropdowns] = useState<{ [key: string]: boolean }>({});
 
   const toggleDropdown = (name: string) => {
-    setActiveDropdown((prev) => (prev === name ? null : name));
+    setActiveDropdowns((prev) => ({
+      ...prev,
+      [name]: !prev[name], // Toggle the state of the clicked dropdown
+    }));
   };
 
   const categories = [
@@ -14,7 +18,7 @@ const Sidebar = () => {
     "User Experience",
     "Visual Fidelity",
     "Communication",
-    "Audio"
+    "Audio",
   ];
 
   return (
@@ -27,9 +31,9 @@ const Sidebar = () => {
               onClick={() => toggleDropdown(category)}
             >
               <span>{category}</span>
-              <span>{activeDropdown === category ? '▲' : '▼'}</span>
+              <span>{activeDropdowns[category] ? "▲" : "▼"}</span>
             </div>
-            {activeDropdown === category && (
+            {activeDropdowns[category] && (
               <ul className="dropdown-list">
                 {[...Array(5)].map((_, index) => (
                   <li key={`${category}-feature-${index}`}>
