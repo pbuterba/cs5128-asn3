@@ -1,26 +1,22 @@
 "use client";
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { Category, Feature } from "./types/feature";
+import { rainbow } from "./components/colors";
 
 interface SidebarProps {
-  numCategories: number;
+  categories: Category[]
 }
 
 // Sidebar component
-const Sidebar = ({ numCategories }: SidebarProps) => {
+const Sidebar = ({ categories }: SidebarProps) => {
   const [activeDropdowns, setActiveDropdowns] = useState<{ [key: string]: boolean }>({});
   const [visibleItems, setVisibleItems] = useState<{ [key: string]: boolean }>(() => {
     // Initialize all categories and features to visible (true)
     const initialState: { [key: string]: boolean } = {};
-    const categories = [
-      "Logging", "Networking", "User Experience", "Visual Fidelity", "Communication",
-      "Audio", "Performance", "Security", "Integration", "Analytics", "Automation",
-      "Collaboration", "Customization", "Mobile", "API", "Storage", "Search",
-      "Notifications", "Reporting", "Workflow"
-    ].slice(0, numCategories);
 
     categories.forEach(category => {
-      initialState[category] = true;
+      initialState[category.name] = true;
       // Initialize all features under each category to visible
       [...Array(5)].forEach((_, index) => {
         initialState[`${category}-feature-${index}`] = true;
@@ -55,41 +51,17 @@ const Sidebar = ({ numCategories }: SidebarProps) => {
     });
   };
 
-  // Generate categories based on numCategories
-  const categories = [
-    { name: "Logging", color: "#4CAF50" },
-    { name: "Networking", color: "#2196F3" },
-    { name: "User Experience", color: "#9C27B0" },
-    { name: "Visual Fidelity", color: "#FF9800" },
-    { name: "Communication", color: "#E91E63" },
-    { name: "Audio", color: "#00BCD4" },
-    { name: "Performance", color: "#FF5722" },
-    { name: "Security", color: "#795548" },
-    { name: "Integration", color: "#607D8B" },
-    { name: "Analytics", color: "#009688" },
-    { name: "Automation", color: "#673AB7" },
-    { name: "Collaboration", color: "#3F51B5" },
-    { name: "Customization", color: "#FFC107" },
-    { name: "Mobile", color: "#8BC34A" },
-    { name: "API", color: "#FF4081" },
-    { name: "Storage", color: "#00BCD4" },
-    { name: "Search", color: "#FF9800" },
-    { name: "Notifications", color: "#9C27B0" },
-    { name: "Reporting", color: "#4CAF50" },
-    { name: "Workflow", color: "#2196F3" },
-  ].slice(0, numCategories);
-
   return (
     <div className="sidebar">
       <h2>Feature Visibility</h2>
       <ul className="category-list">
-        {categories.map((category) => (
+        {categories.map((category: Category, i) => (
           <li key={category.name} className="category-item">
             <div className="category-header">
               <div
                 className="dropdown-header"
                 onClick={() => toggleDropdown(category.name)}
-                style={{ borderLeft: `4px solid ${category.color}` }}
+                style={{ borderLeft: `4px solid ${rainbow(categories.length, i)}` }}
               >
                 <span>{category.name}</span>
                 {activeDropdowns[category.name] ? <FaChevronUp /> : <FaChevronDown />}
@@ -104,11 +76,11 @@ const Sidebar = ({ numCategories }: SidebarProps) => {
             </div>
             {activeDropdowns[category.name] && (
               <ul className="dropdown-list">
-                {[...Array(5)].map((_, index) => {
+                {category.features.map((feature: Feature, index) => {
                   const featureId = `${category.name}-feature-${index}`;
                   return (
                     <li key={featureId} className="feature-item">
-                      <span>Feature {index + 1}</span>
+                      <span>{feature.description}</span>
                       <button
                         className="visibility-toggle"
                         onClick={() => toggleVisibility(featureId)}

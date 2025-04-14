@@ -61,6 +61,10 @@
   gap: 16px;
 }
 
+.plot {
+  border: 2px solid white;
+}
+
 .ctas a {
   appearance: none;
   border-radius: 128px;
