@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, JSX } from "react";
 import { FaEye, FaEyeSlash, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { Category, Feature } from "./types/feature";
 import { rainbow } from "./components/colors";
@@ -32,8 +32,97 @@ const Sidebar = ({ categories, onFeatureToggle, onCategoryToggle }: SidebarProps
 
   const toggleCategory = (category: Category) => {
     onCategoryToggleRef.current?.(category);
-  }
+  };
+  
+  const FeatureItem = ({
+    feature,
+    path,
+    onToggleDropdown,
+    isOpen,
+  }: {
+    feature: Feature;
+    path: string;
+    onToggleDropdown: (path: string) => void;
+    isOpen: boolean;
+  }) => {
+    const hasChildren = feature.childFeatures?.length > 0;
+  
+    return (
+      <li key={path} className="feature-item" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        {/* Left: title + dropdown toggle */}
+        <div
+          className="dropdown-header"
+          onClick={() => hasChildren && onToggleDropdown(path)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexGrow: 1,
+            cursor: hasChildren ? "pointer" : "default",
+            padding: "0.25rem 0.5rem",
+            gap: "0.5rem",
+          }}
+        >
+          <span>{feature.description}</span>
+          {hasChildren && (
+            <span className="dropdown-toggle">
+              {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+            </span>
+          )}
+        </div>
+  
+        {/* Right: visibility icon */}
+        <button
+          className="visibility-toggle"
+          onClick={() => toggleFeature(feature)}
+          title={feature.visible ? "Hide Feature" : "Show Feature"}
+          style={{ marginLeft: "0.5rem", flexShrink: 0 }}
+        >
+          {feature.visible ? <FaEye /> : <FaEyeSlash />}
+        </button>
+      </li>
+    );
+  };
 
+  const FeatureList = ({
+    features,
+    activeDropdowns,
+    toggleDropdown,
+    parentPath = "",
+  }: {
+    features: Feature[];
+    activeDropdowns: Record<string, boolean>;
+    toggleDropdown: (path: string) => void;
+    parentPath?: string;
+  }) => {
+    const renderFeatures = (features: Feature[], parentPath = ""): JSX.Element[] => {
+      let items: JSX.Element[] = [];
+  
+      features.forEach((feature, index) => {
+        const path = parentPath ? `${parentPath}-child-${index}` : `${index}`;
+        const isOpen = activeDropdowns[path] ?? false;
+  
+        items.push(
+          <FeatureItem
+            key={path}
+            feature={feature}
+            path={path}
+            isOpen={isOpen}
+            onToggleDropdown={toggleDropdown}
+          />
+        );
+  
+        if (isOpen && feature.childFeatures?.length) {
+          const childItems = renderFeatures(feature.childFeatures, path);
+          items = items.concat(childItems);
+        }
+      });
+  
+      return items;
+    };
+  
+    return <ul className="feature-list">{renderFeatures(features, parentPath)}</ul>;
+  };  
+  
   return (
     <div className="sidebar">
       <h2>Feature Visibility</h2>
@@ -58,24 +147,14 @@ const Sidebar = ({ categories, onFeatureToggle, onCategoryToggle }: SidebarProps
               </button>
             </div>
             {activeDropdowns[category.name] && (
-              <ul className="dropdown-list">
-                {category.features.map((feature: Feature, index) => {
-                  const featureId = `${category.name}-feature-${index}`;
-                  return (
-                    <li key={featureId} className="feature-item">
-                      <span>{feature.description}</span>
-                      <button
-                        className="visibility-toggle"
-                        onClick={() => toggleFeature(feature)}
-                        title={feature.visible ? "Hide Feature" : "Show Feature"}
-                      >
-                        {feature.visible ? <FaEye /> : <FaEyeSlash />}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+              <FeatureList
+                key={`${category.name}-features-${i}`}
+                features={category.features}
+                activeDropdowns={activeDropdowns}
+                toggleDropdown={toggleDropdown}
+                parentPath={`${i}`}
+              />
+            )}    
           </li>
         ))}
       </ul>

@@ -17,7 +17,12 @@ export default function Home() {
       {
         childFeatures: [
           {
-            childFeatures: [],
+            childFeatures: [{
+              childFeatures: [],
+              description: "Networking 2.5",
+              timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
+              visible: true, // Added 'visible' attribute to feature
+            }],
             description: "Networking 2",
             timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
             visible: true, // Added 'visible' attribute to feature
