@@ -94,7 +94,7 @@ class CoralBase {
         this.categories.forEach((category: Category, i) => {
             if (!category.visible) return;
             const angle = (((2 * Math.PI)/this.categories.length) * i) - (Math.PI / 2);
-            const thickness = 5;
+            const thickness = 4;
             const color = rainbow(this.categories.length, i);
             const length = 275;
 
@@ -214,7 +214,7 @@ class CoralBase {
           });
 
         feature.childFeatures.forEach((child: Feature) => {
-            this.drawBranch(container, pos.x, pos.y, width, height, child, thickness * .5, color, childDepth + 1, side, branchAngle, numSides, minDate, maxDate);
+            this.drawBranch(container, pos.x, pos.y, width, height, child, thickness * .85, color, childDepth + 1, side, branchAngle, numSides, minDate, maxDate);
         });
     }
 }
