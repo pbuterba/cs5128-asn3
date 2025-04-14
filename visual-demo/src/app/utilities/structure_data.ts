@@ -30,15 +30,8 @@ export function makeTree(dataList: Feature[], fileName: string): FeatureTreeNode
          description: dataEntry.description
       };
    });
-
-   let tree: FeatureTreeNode[] = [];
-   dataList.forEach((feature) =>  {
-      //Check the rest of the list for children, and encorporate into tree structure - Ibrahim
-   });
-
-export function makeTree(dataList: Feature[]): FeatureTreeNode[] {
+  
   const nodeMap: Record<number, FeatureTreeNode> = {};
-
   dataList.forEach((feature) => {
     nodeMap[feature.id] = {
       id: feature.id,

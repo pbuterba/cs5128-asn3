@@ -12,7 +12,7 @@ export interface Metadata {
 export interface FeatureTreeNode {
    id: number,
    category: string,
-   children: Feature[],
+   children: FeatureTreeNode[],
    metadata: Metadata
 }
 
