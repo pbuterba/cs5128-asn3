@@ -209,7 +209,7 @@ class CoralBase {
             this.onFeatureHoverRef.current?.(null);
           });
 
-        feature.childFeatures.forEach((child: Feature, i) => {
+        feature.childFeatures.forEach((child: Feature) => {
             this.drawBranch(container, pos.x, pos.y, width, height, child, thickness * .5, color, childDepth + 1, side, branchAngle, numSides, minDate, maxDate);
         });
     }

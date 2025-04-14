@@ -97,7 +97,7 @@ async function gptCall(
             const { annotations } = text;
             const citations: string[] = [];
             let index = 0;
-            for (let annotation of annotations) {
+            for (const annotation of annotations) {
               text.value = text.value.replace(annotation.text, `[${index}]`);
               const { file_citation } = annotation as any;
               if (file_citation) {
@@ -120,7 +120,7 @@ async function gptCall(
 }
 
 function parseFeatures(res: string): any {
-  let cleaned = res
+  const cleaned = res
     .replace(/^```(?:json)?\s*\n?/, "")
     .replace(/\n?```$/, "")
     .trim();

@@ -58,7 +58,7 @@ async function gptCall(csvContent: string[], fileName: string): Promise<void> {
     purpose: "assistants",
   });
 
-  let vectorStore = await openai.vectorStores.create({
+  const vectorStore = await openai.vectorStores.create({
     name: fileName + " Vector Store",
   });
 

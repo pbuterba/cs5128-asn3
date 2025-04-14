@@ -4,7 +4,6 @@ import Sidebar from "../app/Sidebar";   // Corrected import path
 import "../app/globals.css"; // Correct path to styles directory
 import { useCallback } from "react";
 import Coral from "./components/coral";
-import styles from "./page.module.css";
 import { Category, Feature } from "./types/feature";
 import dayjs from "dayjs";
 
@@ -131,13 +130,11 @@ export default function Home() {
 
 
   const [fileNames, setFileNames] = useState<string[]>([]);
-  const [features, setFeatures] = useState<string[]>([]);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [features] = useState<string[]>([]);
+  const [_, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>("");
   const [numCategories, setNumCategories] = useState(6);
-
-  const coralRef = createRef<HTMLDivElement>();
-
+  
   // Handle file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;

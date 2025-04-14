@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, RefObject, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { FaEye, FaEyeSlash, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { Category, Feature } from "./types/feature";
 import { rainbow } from "./components/colors";
@@ -18,20 +18,6 @@ const Sidebar = ({ categories, onFeatureToggle, onCategoryToggle }: SidebarProps
   onCategoryToggleRef.current = onCategoryToggle;
 
   const [activeDropdowns, setActiveDropdowns] = useState<{ [key: string]: boolean }>({});
-  const [visibleItems, setVisibleItems] = useState<{ [key: string]: boolean }>(() => {
-    // Initialize all categories and features to visible (true)
-    const initialState: { [key: string]: boolean } = {};
-
-    categories.forEach(category => {
-      initialState[category.name] = true;
-      // Initialize all features under each category to visible
-      category.features.forEach((_, index) => {
-        initialState[`${category}-feature-${index}`] = true;
-      });
-    });
-
-    return initialState;
-  });
 
   const toggleDropdown = (name: string) => {
     setActiveDropdowns((prev) => ({
