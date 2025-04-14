@@ -29,9 +29,10 @@ export default function Home() {
     "It delivers smooth integration with third-party productivity apps.,20-02-2022,marketing",
   ];
 
-  const [fileNames, setFileNames] = useState([]);
+  const [fileNames, setFileNames] = useState<string[]>([]);
   const [features, setFeatures] = useState<string[]>([]);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null); // State for the file
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string>("");
   const [numCategories, setNumCategories] = useState(6);
 
   // Handle file upload
@@ -39,9 +40,17 @@ export default function Home() {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
       setSelectedFile(file);
+      // Add the new file to the fileNames list
+      setFileNames(prevFiles => [...prevFiles, file.name]);
+      setSelectedFileName(file.name);
       // You can then process the file (upload it to the server, read it, etc.)
       console.log("File selected:", file);
     }
+  };
+
+  // Handle file selection from dropdown
+  const handleFileSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedFileName(e.target.value);
   };
 
   // Handle number of categories change
@@ -89,7 +98,7 @@ export default function Home() {
       <div className="main-content">
         <h1>Untitled Coral Plot of WebEx Features</h1>
 
-        {/* Add CSV Upload Button */}
+        {/* Add CSV Upload Button and Dropdown */}
         <div className="csv-upload-section">
           <button onClick={() => document.getElementById("file-input")?.click()}>
             Upload CSV
@@ -98,9 +107,21 @@ export default function Home() {
             id="file-input"
             type="file"
             accept=".csv"
-            style={{ display: "none" }} // Hide the file input
+            style={{ display: "none" }}
             onChange={handleFileUpload}
           />
+          <select 
+            value={selectedFileName} 
+            onChange={handleFileSelect}
+            className="file-dropdown"
+          >
+            <option value="">Select a CSV file</option>
+            {fileNames.map((fileName: string, index: number) => (
+              <option key={index} value={fileName}>
+                {fileName}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Filters Section */}
