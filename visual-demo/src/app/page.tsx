@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, createRef } from "react";
+import { useState, useEffect, createRef, useRef } from "react";
 import Sidebar from "../app/Sidebar";   // Corrected import path
 import "../app/globals.css"; // Correct path to styles directory
 import { useCallback } from "react";
@@ -140,6 +140,8 @@ export default function Home() {
   const [numCategories, setNumCategories] = useState(6);
   const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
   const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number } | null>(null);
+  const coralContainerRef = useRef<HTMLDivElement>(null);
+  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   
   // Handle file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -235,7 +237,7 @@ export default function Home() {
   //   if (on) 
   // }, [categories]);
 
-  // Fetch available files
+  // Fetch available files and create resize observer for the Coral component
   useEffect(() => {
     fetch("/api/file/available", {
       method: "GET",
@@ -245,7 +247,26 @@ export default function Home() {
     })
       .then((response) => response.json())
       .then((json) => setFileNames(json));
-  }, []);
+
+      const resizeObserver = new ResizeObserver(entries => {
+        for (let entry of entries) {
+          if (entry.target === coralContainerRef.current) {
+            const { width, height } = entry.contentRect;
+            setContainerSize({ width, height });
+          }
+        }
+      });
+  
+      if (coralContainerRef.current) {
+        resizeObserver.observe(coralContainerRef.current);
+      }
+  
+      return () => {
+        if (coralContainerRef.current) {
+          resizeObserver.unobserve(coralContainerRef.current);
+        }
+      };
+    }, []);
 
   return (
     <div className="layout-container">
@@ -306,9 +327,9 @@ export default function Home() {
             <input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
           </div>
         </div>
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', height: '100%', width: '100%' }} ref={coralContainerRef}>
           <div className="plot">
-            <Coral width={850} height={650} categories={categories} onFeatureHover={onFeatureHover}/>
+            <Coral width={containerSize.width} height={containerSize.height} categories={categories} onFeatureHover={onFeatureHover}/>
           </div>
           {hoveredFeature && (
           <div style={{
