@@ -74,8 +74,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) {
-  const csv = JSON.parse(req.body).csv ?? [];
-  const fileName = JSON.parse(req.body).fileName ?? "test";
+  // Parse the request body directly since it's now JSON
+  const { csv, fileName } = req.body;
+  
   return new Promise<void>((resolve, reject) => {
     // fakeGPTCall(csv, fileName)
     gptCall(csv, fileName)
