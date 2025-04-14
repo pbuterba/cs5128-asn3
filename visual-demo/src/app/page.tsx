@@ -191,15 +191,16 @@ export default function Home() {
 
   // Handle file selection from dropdown
   const handleFileSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedFileName(e.target.value);
+    const newFileName = e.target.value;
+    setSelectedFileName(newFileName);
   };
 
   // Handle number of categories change
   const handleNumCategoriesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
-    if (!isNaN(value)) {
-      // Cap the value between 1 and 6
-      const cappedValue = Math.min(Math.max(value, 1), 6);
+    // Cap the value between 1 and 10
+    const cappedValue = Math.min(Math.max(value, 1), 10);
+    if (!isNaN(cappedValue)) {
       setNumCategories(cappedValue);
     }
   };
@@ -268,6 +269,33 @@ export default function Home() {
       };
     }, []);
 
+    // Fetch features when a file is selected or the number of categories changes
+    // This may be able to be moved into the individual category number and file name change handlers, but for now we're putting it here...
+    // useEffect(() => {
+    //   // Make request to fetch features when a new file is selected or the number of categories changes
+    //   // In principle, we should only make this request when a new file/number of categories is selected and the results don't already exist
+    //   if (!selectedFileName || !numCategories) return;
+    //   // get file ID from somewhere...
+    //   const filename = "temp"
+    //   fetch(`/api/features/${filename}`, {
+    //     method: "GET",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   })
+    //     .then((response) => {console.log("Response:", response); return response.json();})
+    //     .then((response) => response.json())
+    //     .then((json) => setFileNames(json));
+  
+      
+    //   // I'm pretty sure the results are saved to a file
+
+    //   // From there, the response can be parsed (using the functions in utilities)
+    //   // Next, the resultant tree can be transformed in the categories structure that Coral expects
+    //   // Finally, the categories state can be updated with the new data
+    // }
+    // ,[selectedFileName, numCategories]);
+
   return (
     <div className="layout-container">
       <Sidebar categories={categories} onFeatureToggle={onFeatureToggle} onCategoryToggle={onCategoryToggle}/>
@@ -309,7 +337,7 @@ export default function Home() {
               value={numCategories}
               onChange={handleNumCategoriesChange}
               min="1"
-              max="6"
+              max="10"
             />
           </div>
           <div>
