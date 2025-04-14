@@ -43,8 +43,41 @@ export default function Home() {
       // Add the new file to the fileNames list
       setFileNames(prevFiles => [...prevFiles, file.name]);
       setSelectedFileName(file.name);
-      // You can then process the file (upload it to the server, read it, etc.)
-      console.log("File selected:", file);
+      
+      // Process the CSV file to remove commas from cells
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target && event.target.result) {
+          const csvContent = event.target.result as string;
+          const lines = csvContent.split('\n');
+          
+          // Process each line to remove commas from cells
+          const processedLines = lines.map(line => {
+            // Split by comma but preserve quoted content
+            const cells = line.split(',');
+            // Remove commas from each cell
+            const processedCells = cells.map(cell => cell.trim().replace(/,/g, ''));
+            // Join back with commas
+            return processedCells.join(',');
+          });
+          
+          // Send the processed CSV to the backend
+          fetch("/api/file/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              csv: processedLines,
+              fileName: file.name.replace('.csv', '')
+            }),
+          })
+            .then((response) => response.json())
+            .then((json) => console.log("File Uploaded:", json))
+            .catch((error) => console.error("Error uploading file:", error));
+        }
+      };
+      reader.readAsText(file);
     }
   };
 
@@ -62,22 +95,6 @@ export default function Home() {
       setNumCategories(cappedValue);
     }
   };
-
-  // Handle file upload (example)
-  useEffect(() => {
-    if (selectedFile) {
-      const formData = new FormData();
-      formData.append("csv", selectedFile);
-
-      fetch("/api/file/upload", {
-        method: "POST",
-        body: formData,
-      })
-        .then((response) => response.json())
-        .then((json) => console.log("File Uploaded:", json))
-        .catch((error) => console.error("Error uploading file:", error));
-    }
-  }, [selectedFile]);
 
   // Fetch available files
   useEffect(() => {
