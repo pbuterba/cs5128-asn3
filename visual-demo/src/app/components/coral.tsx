@@ -96,7 +96,7 @@ class CoralBase {
             const angle = (((2 * Math.PI)/this.categories.length) * i) - (Math.PI / 2);
             const thickness = 4;
             const color = rainbow(this.categories.length, i);
-            const length = 275;
+            const length = 425; // make as long as farthest time point!!
 
             container.append('line')
                 .attr('x1', this.width / 2)
@@ -106,7 +106,7 @@ class CoralBase {
                 .attr('stroke', color)
                 .attr('stroke-linecap', 'round')
                 .attr('stroke-width', 3)
-                .attr('stroke-dasharray', '5')
+                .attr('stroke-dasharray', 7)
 
             category.features.forEach((feature: Feature, j) => {
                 let factor = 1;
@@ -245,6 +245,9 @@ export default function Coral({width, height, categories, onFeatureHover}) {
                 const circles = svg.selectAll('circle');
                 lines.each((_, i, node) => {
                   node[i].setAttribute('stroke-width', node[i].getAttribute('stroke-width') * scale);
+                  if (node[i].getAttribute('stroke-dasharray')) {
+                    node[i].setAttribute('stroke-dasharray', node[i].getAttribute('stroke-dasharray') * scale);
+                  }
                 });
                 circles.each((_, i, node) => {
                   node[i].setAttribute('r', node[i].getAttribute('r') * scale);
