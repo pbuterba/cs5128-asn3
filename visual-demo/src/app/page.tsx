@@ -128,12 +128,13 @@ export default function Home() {
   }
 ] as Category[]);
 
-
   const [fileNames, setFileNames] = useState<string[]>([]);
   const [features] = useState<string[]>([]);
   const [_, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>("");
   const [numCategories, setNumCategories] = useState(6);
+  const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
+  const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number } | null>(null);
   
   // Handle file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -196,11 +197,10 @@ export default function Home() {
     }
   };
 
-  const onFeatureHover = useCallback( (feature: Feature) =>{
-    if (feature) {
-      console.log("Hovered feature:", feature.description);
-    } else {
-      console.log("No feature hovered");
+  const onFeatureHover = useCallback((feature: Feature | null, x?: number, y?: number) => {
+    setHoveredFeature(feature);
+    if (x !== undefined && y !== undefined) {
+      setCursorPosition({ x, y });
     }
   }, []);
 
@@ -301,8 +301,28 @@ export default function Home() {
             <input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
           </div>
         </div>
-        <div className="plot">
-          <Coral width={850} height={650} categories={categories} onFeatureHover={onFeatureHover}/>
+        <div style={{ position: 'relative' }}>
+          <div className="plot">
+            <Coral width={850} height={650} categories={categories} onFeatureHover={onFeatureHover}/>
+          </div>
+          {hoveredFeature && (
+          <div style={{
+            position: 'absolute',
+            top: cursorPosition ? cursorPosition.y - 200 : 0,
+            left: cursorPosition ? cursorPosition.x -60 : 0,
+            backgroundColor: '#111',
+            color: 'white',
+            border: '1px solid #444',
+            borderRadius: '8px',
+            padding: '10px',
+            opacity: 0.8,
+            maxWidth: '250px',
+            fontSize: '14px',
+          }}>
+            <strong>Description:</strong> {hoveredFeature.description}<br />
+            <strong>Timestamp:</strong> {dayjs(hoveredFeature.timestamp).format("YYYY-MM-DD")}
+          </div>
+          )}
         </div>
         <div>
           <ul>

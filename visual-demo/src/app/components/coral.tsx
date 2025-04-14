@@ -70,7 +70,7 @@ class CoralBase {
     svgRef: Ref<SVGElement>;
     maxDate: dayjs.Dayjs;
     minDate: dayjs.Dayjs;
-    onFeatureHoverRef: RefObject<((feature: Feature | null) => void) | undefined>;
+    onFeatureHoverRef: RefObject<((feature: Feature | null, x: number | undefined, y: number | undefined) => void) | undefined>;
 
     constructor(width: number, height: number, svgRef: Ref<SVGElement>, categories: Category[], onFeatureHoverRef: RefObject<((feature: Feature | null) => void) | undefined>) {
         this.width = width;
@@ -189,11 +189,11 @@ class CoralBase {
           .attr('stroke', color)
           .attr('stroke-linecap', 'round')
           .attr('stroke-width', thickness)
-          .on("mouseover", () => {
-            this.onFeatureHoverRef.current?.(feature);
+          .on("mouseover", (event) => {
+            this.onFeatureHoverRef.current?.(feature, event.clientX, event.clientY);
           })
           .on("mouseout", () => {
-            this.onFeatureHoverRef.current?.(null);
+            this.onFeatureHoverRef.current?.(null, undefined, undefined);
           });
         
         container
@@ -202,11 +202,11 @@ class CoralBase {
           .attr('cy', pos.y)
           .attr('fill', "white")
           .attr('r', thickness)
-          .on("mouseover", () => {
-            this.onFeatureHoverRef.current?.(feature);
+          .on("mouseover", (event) => {
+            this.onFeatureHoverRef.current?.(feature, event.clientX, event.clientY);
           })
           .on("mouseout", () => {
-            this.onFeatureHoverRef.current?.(null);
+            this.onFeatureHoverRef.current?.(null, undefined, undefined);
           });
 
         feature.childFeatures.forEach((child: Feature) => {
