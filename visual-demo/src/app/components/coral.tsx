@@ -168,7 +168,6 @@ class CoralBase {
 
     drawBranch(container: d3.Selection<SVGGElement, unknown, null, undefined>, x: number, y: number, width: number, height: number, feature: Feature, thickness: number, color: string, childDepth: number, side: number, relativeAngle: number, numSides: number, minDate: dayjs.Dayjs, maxDate: dayjs.Dayjs) {
         if (!feature.visible) return;
-        // const branchLength = 300;
         const maxAngleOffset = ((Math.PI * 2) / numSides) / (2 * (childDepth + 2));
         
         const timestamp = dayjs(feature.timestamp);
@@ -189,10 +188,14 @@ class CoralBase {
           .attr('stroke', color)
           .attr('stroke-linecap', 'round')
           .attr('stroke-width', thickness)
-          .on("mouseover", () => {
+          .on("mouseover", (e: MouseEvent) => {
+            // container.selectAll('line').attr('opacity', 0.65);
+            const targetLine: SVGLineElement = e.target as SVGLineElement;
+            targetLine.setAttribute('opacity', '1');
             this.onFeatureHoverRef.current?.(feature);
           })
           .on("mouseout", () => {
+            container.selectAll('line').attr('opacity', 1);
             this.onFeatureHoverRef.current?.(null);
           });
         
