@@ -105,7 +105,8 @@ class CoralBase {
                 .attr('y2', (length * Math.sin(angle)) + (this.height / 2))
                 .attr('stroke', color)
                 .attr('stroke-linecap', 'round')
-                .attr('stroke-width', thickness);
+                .attr('stroke-width', 3)
+                .attr('stroke-dasharray', '5')
 
             category.features.forEach((feature: Feature, j) => {
                 let factor = 1;
@@ -204,7 +205,7 @@ class CoralBase {
           .attr('cx', pos.x)
           .attr('cy', pos.y)
           .attr('fill', "white")
-          .attr('r', thickness)
+          .attr('r', 4)
           .on("mouseover", (event) => {
             this.onFeatureHoverRef.current?.(feature, event.clientX, event.clientY);
           })
@@ -232,16 +233,23 @@ export default function Coral({width, height, categories, onFeatureHover}) {
         const svg = d3.select(ref.current);
         const container = svg.select<SVGGElement>('.zoom-container');
 
+        const previousK = createRef<number>();
+        previousK.current = 1;
+
         const zoom = d3.zoom<SVGSVGElement, unknown>()
             .scaleExtent([0.1, 10]) // adjust min/max zoom as needed
             .on("zoom", (event) => {
                 container.attr("transform", event.transform);
-                const scale = event.transform.k;
+                const scale = previousK.current / event.transform.k;
                 const lines = svg.selectAll('line');
                 const circles = svg.selectAll('circle');
-
-                lines.attr('stroke-width', Math.min(5, 5 / scale));
-                circles.attr('r', Math.min(5, 5/scale));
+                lines.each((_, i, node) => {
+                  node[i].setAttribute('stroke-width', node[i].getAttribute('stroke-width') * scale);
+                });
+                circles.each((_, i, node) => {
+                  node[i].setAttribute('r', node[i].getAttribute('r') * scale);
+                });
+                previousK.current = event.transform.k;
             });
 
         svg.call(zoom);
