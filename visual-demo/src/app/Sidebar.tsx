@@ -7,12 +7,16 @@ import { rainbow } from "./components/colors";
 interface SidebarProps {
   categories: Category[]
   onFeatureToggle: ((feature: Feature) => void)
+  onCategoryToggle: ((category: Category) => void)
 }
 
 // Sidebar component
-const Sidebar = ({ categories, onFeatureToggle }: SidebarProps) => {
+const Sidebar = ({ categories, onFeatureToggle, onCategoryToggle }: SidebarProps) => {
   const onFeatureToggleRef = useRef<typeof onFeatureToggle>(null);
   onFeatureToggleRef.current = onFeatureToggle; 
+  const onCategoryToggleRef = useRef<typeof onCategoryToggle>(null);
+  onCategoryToggleRef.current = onCategoryToggle;
+
   const [activeDropdowns, setActiveDropdowns] = useState<{ [key: string]: boolean }>({});
   const [visibleItems, setVisibleItems] = useState<{ [key: string]: boolean }>(() => {
     // Initialize all categories and features to visible (true)
@@ -40,23 +44,9 @@ const Sidebar = ({ categories, onFeatureToggle }: SidebarProps) => {
     onFeatureToggleRef.current?.(feature);
   };
 
-  const toggleVisibility = (itemId: string, isCategory: boolean = false) => {
-    setVisibleItems((prev) => {
-      const newState = { ...prev };
-      const newVisibility = !prev[itemId];
-      newState[itemId] = newVisibility;
-
-      // If this is a category toggle, update all features under this category
-      if (isCategory) {
-        categories.filter((cat: Category) => cat.name === itemId).forEach((_, index) => {
-          const featureId = `${itemId}-feature-${index}`;
-          newState[featureId] = newVisibility;
-        });
-      }
-
-      return newState;
-    });
-  };
+  const toggleCategory = (category: Category) => {
+    onCategoryToggleRef.current?.(category);
+  }
 
   return (
     <div className="sidebar">
@@ -75,10 +65,10 @@ const Sidebar = ({ categories, onFeatureToggle }: SidebarProps) => {
               </div>
               <button
                 className="visibility-toggle"
-                onClick={() => toggleVisibility(category.name, true)}
-                title={visibleItems[category.name] ? "Hide Category" : "Show Category"}
+                onClick={() => toggleCategory(category)}
+                title={category.visible ? "Hide Category" : "Show Category"}
               >
-                {visibleItems[category.name] ? <FaEye /> : <FaEyeSlash />}
+                {category.visible ? <FaEye /> : <FaEyeSlash />}
               </button>
             </div>
             {activeDropdowns[category.name] && (

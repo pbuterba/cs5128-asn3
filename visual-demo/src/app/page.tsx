@@ -207,22 +207,26 @@ export default function Home() {
     }
   }, []);
 
-  const
-      toggleFeature = (features: Feature[], feature: Feature) => features.some((f: Feature) => f.description === feature.description
-        ? f.visible = !f.visible
-        : toggleFeature(f.childFeatures, feature)
-    );
+  const onCategoryToggle = useCallback( (category: Category) => {
+    const catIndex = categories.indexOf(category);
+    const catCopy: Category[] = [...categories];
+    catCopy[catIndex].visible = !catCopy[catIndex].visible;
+    setCategories(catCopy);
+  }, [categories]);
 
   const onFeatureToggle = useCallback( (feature: Feature) => {
+    const toggleFeature: (features: Feature[], feature: Feature) => boolean = (features: Feature[], feature: Feature) => features.some(
+      (f: Feature) => f.description === feature.description
+        ? f.visible = !f.visible
+        : toggleFeature(f.childFeatures, feature)
+      );
     const catCopy: Category[] = [...categories];
     categories.forEach((category: Category, i) => {
       const features = [...category.features]
       toggleFeature(features, feature);
       catCopy[i].features = features;
     });
-
     setCategories(catCopy);
-    
   }, [categories]);
 
   // const sidebarToggleFeature = useCallback( (feature: Feature, on: boolean) => {
@@ -243,7 +247,7 @@ export default function Home() {
 
   return (
     <div className="layout-container">
-      <Sidebar categories={categories} onFeatureToggle={onFeatureToggle}/>
+      <Sidebar categories={categories} onFeatureToggle={onFeatureToggle} onCategoryToggle={onCategoryToggle}/>
 
       <div className="main-content">
         <h1>Untitled Coral Plot of WebEx Features</h1>
