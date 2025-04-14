@@ -1,5 +1,7 @@
-'use client'
-
+"use client";
+import { useState, useEffect } from "react";
+import Sidebar from "../app/Sidebar";   // Corrected import path
+import "../app/globals.css"; // Correct path to styles directory
 import { useCallback } from "react";
 import Coral from "./components/coral";
 import styles from "./page.module.css";
@@ -114,7 +116,73 @@ export default function Home() {
     
   ];
 
-  // onFeatureHover function to handle hover events on features (highlighting in side bar or showing details in a popup)
+  const [fileNames, setFileNames] = useState<string[]>([]);
+  const [features, setFeatures] = useState<string[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFileName, setSelectedFileName] = useState<string>("");
+  const [numCategories, setNumCategories] = useState(6);
+
+  // Handle file upload
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (file) {
+      setSelectedFile(file);
+      // Add the new file to the fileNames list
+      setFileNames(prevFiles => [...prevFiles, file.name]);
+      setSelectedFileName(file.name);
+      
+      // Process the CSV file to remove commas from cells
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target && event.target.result) {
+          const csvContent = event.target.result as string;
+          const lines = csvContent.split('\n');
+          
+          // Process each line to remove commas from cells
+          const processedLines = lines.map(line => {
+            // Split by comma but preserve quoted content
+            const cells = line.split(',');
+            // Remove commas from each cell
+            const processedCells = cells.map(cell => cell.trim().replace(/,/g, ''));
+            // Join back with commas
+            return processedCells.join(',');
+          });
+          
+          // Send the processed CSV to the backend
+          fetch("/api/file/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              csv: processedLines,
+              fileName: file.name.replace('.csv', '')
+            }),
+          })
+            .then((response) => response.json())
+            .then((json) => console.log("File Uploaded:", json))
+            .catch((error) => console.error("Error uploading file:", error));
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  // Handle file selection from dropdown
+  const handleFileSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedFileName(e.target.value);
+  };
+
+  // Handle number of categories change
+  const handleNumCategoriesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value)) {
+      // Cap the value between 1 and 6
+      const cappedValue = Math.min(Math.max(value, 1), 6);
+      setNumCategories(cappedValue);
+    }
+  };
+
   const onFeatureHover = useCallback( (feature: Feature) =>{
     if (feature) {
       console.log("Hovered feature:", feature.description);
@@ -123,9 +191,97 @@ export default function Home() {
     }
   }, []);
 
+
+  // Fetch available files
+  useEffect(() => {
+    fetch("/api/file/available", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((json) => setFileNames(json));
+  }, []);
+
   return (
-    <div className={styles.page}>
+    <div className="layout-container">
+      <Sidebar categories={categories} />
+
+      <div className="main-content">
+        <h1>Untitled Coral Plot of WebEx Features</h1>
+
+        {/* Add CSV Upload Button and Dropdown */}
+        <div className="csv-upload-section">
+          <button onClick={() => document.getElementById("file-input")?.click()}>
+            Upload CSV
+          </button>
+          <input
+            id="file-input"
+            type="file"
+            accept=".csv"
+            style={{ display: "none" }}
+            onChange={handleFileUpload}
+          />
+          <select 
+            value={selectedFileName} 
+            onChange={handleFileSelect}
+            className="file-dropdown"
+          >
+            <option value="">Select a CSV file</option>
+            {fileNames.map((fileName: string, index: number) => (
+              <option key={index} value={fileName}>
+                {fileName}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Filters Section */}
+        <div className="filters-section">
+          <div>
+            <label>Number of Categories</label>
+            <input 
+              type="number" 
+              value={numCategories}
+              onChange={handleNumCategoriesChange}
+              min="1"
+              max="6"
+            />
+          </div>
+          <div>
+            <label>Filter</label>
+            <input type="text" placeholder="Filter String" />
+            <button>Filter</button>
+          </div>
+          <div>
+            <label>Start Date</label>
+            <input type="date" defaultValue="2024-08-01" />
+          </div>
+          <div>
+            <label>End Date</label>
+            <input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
+          </div>
+        </div>
+
       <Coral width={600} height={600} categories={categories} onFeatureHover={onFeatureHover}/>
+
+        <div>
+          <ul>
+            {fileNames.map((fileName: string, index: number) => (
+              <li key={index}>{fileName}</li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <ul>
+            {Array.isArray(features) && features.map((feature: string, index: number) => (
+              <li key={index}>{feature}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
