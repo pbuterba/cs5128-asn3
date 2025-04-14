@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, createRef } from "react";
 import Sidebar from "../app/Sidebar";   // Corrected import path
 import "../app/globals.css"; // Correct path to styles directory
 import { useCallback } from "react";
@@ -10,117 +10,133 @@ import dayjs from "dayjs";
 
 export default function Home() {
   // Mock data structure for the categories and features, passed as props to the Coral component (dayjs objects are converted to ISO strings for serialization)
-  const categories: Category[] = [
-    {
-        name: "Networking",
-        features: [
+  const [categories, setCategories] = useState([
+  {
+    name: "Networking",
+    visible: true, // Added 'visible' attribute to category
+    features: [
+      {
+        childFeatures: [
           {
-            childFeatures: [
-              {
-                childFeatures: [],
-                description: "Networking 2",
-                timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
-              },
-              {
-                childFeatures: [],
-                description: "Networking 3",
-                timestamp: dayjs().add(4, 'year').add(3, 'month').toISOString(),
-              },
-              {
-                childFeatures: [],
-                description: "Networking 4",
-                timestamp: dayjs().add(5, 'year').add(1, 'month').toISOString(),
-              }
-            ],
-            description: "Networking 1",
-            timestamp: dayjs().add(3, 'year').toISOString(),
+            childFeatures: [],
+            description: "Networking 2",
+            timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
+            visible: true, // Added 'visible' attribute to feature
           },
           {
-            childFeatures: [
-              {
-                childFeatures: [],
-                description: "Networking 6",
-                timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
-              },
-              {
-                childFeatures: [],
-                description: "Networking 7",
-                timestamp: dayjs().add(3, 'year').add(3, 'month').toISOString(),
-              },
-              {
-                childFeatures: [],
-                description: "Networking 8",
-                timestamp: dayjs().add(6, 'year').add(1, 'month').toISOString(),
-              }
-            ],
-            description: "Networking 5",
-            timestamp: dayjs().add(3, 'year').toISOString(),
-          }
-        ]
-    },
-    {
-        name: "OS",
-        features: [
+            childFeatures: [],
+            description: "Networking 3",
+            timestamp: dayjs().add(4, 'year').add(3, 'month').toISOString(),
+            visible: true, // Added 'visible' attribute to feature
+          },
           {
-            childFeatures: [
-            ],
-            description: "OS 1",
-            timestamp: dayjs().add(3, 'year').toISOString(),
+            childFeatures: [],
+            description: "Networking 4",
+            timestamp: dayjs().add(5, 'year').add(1, 'month').toISOString(),
+            visible: true, // Added 'visible' attribute to feature
           }
-        ]
-    },
-    {
-        name: "User Interface",
-        features: [
+        ],
+        description: "Networking 1",
+        timestamp: dayjs().add(3, 'year').toISOString(),
+        visible: true, // Added 'visible' attribute to feature
+      },
+      {
+        childFeatures: [
           {
-            childFeatures: [
-            ],
-            description: "UI 1",
-            timestamp: dayjs().add(3, 'year').toISOString(),
-          }
-        ]
-    },
-    {
-        name: "API",
-        features: [
+            childFeatures: [],
+            description: "Networking 6",
+            timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
+            visible: true, // Added 'visible' attribute to feature
+          },
           {
-            childFeatures: [
-            ],
-            description: "API 1",
-            timestamp: dayjs().add(3, 'year').toISOString(),
-          }
-        ]
-    },
-    {
-        name: "QA",
-        features: [
+            childFeatures: [],
+            description: "Networking 7",
+            timestamp: dayjs().add(3, 'year').add(3, 'month').toISOString(),
+            visible: true, // Added 'visible' attribute to feature
+          },
           {
-            childFeatures: [
-            ],
-            description: "QA 1",
-            timestamp: dayjs().add(3, 'year').toISOString(),
+            childFeatures: [],
+            description: "Networking 8",
+            timestamp: dayjs().add(6, 'year').add(1, 'month').toISOString(),
+            visible: true, // Added 'visible' attribute to feature
           }
-        ]
-    },
-    {
-        name: "DevOps",
-        features: [
-          {
-            childFeatures: [
-            ],
-            description: "DevOps 1",
-            timestamp: dayjs().add(3, 'year').toISOString(),
-          }
-        ]
-    },
-    
-  ];
+        ],
+        description: "Networking 5",
+        timestamp: dayjs().add(3, 'year').toISOString(),
+        visible: true, // Added 'visible' attribute to feature
+      }
+    ]
+  },
+  {
+    name: "OS",
+    visible: true, // Added 'visible' attribute to category
+    features: [
+      {
+        childFeatures: [],
+        description: "OS 1",
+        timestamp: dayjs().add(3, 'year').toISOString(),
+        visible: true, // Added 'visible' attribute to feature
+      }
+    ]
+  },
+  {
+    name: "User Interface",
+    visible: true, // Added 'visible' attribute to category
+    features: [
+      {
+        childFeatures: [],
+        description: "UI 1",
+        timestamp: dayjs().add(3, 'year').toISOString(),
+        visible: true, // Added 'visible' attribute to feature
+      }
+    ]
+  },
+  {
+    name: "API",
+    visible: true, // Added 'visible' attribute to category
+    features: [
+      {
+        childFeatures: [],
+        description: "API 1",
+        timestamp: dayjs().add(3, 'year').toISOString(),
+        visible: true, // Added 'visible' attribute to feature
+      }
+    ]
+  },
+  {
+    name: "QA",
+    visible: true, // Added 'visible' attribute to category
+    features: [
+      {
+        childFeatures: [],
+        description: "QA 1",
+        timestamp: dayjs().add(3, 'year').toISOString(),
+        visible: true, // Added 'visible' attribute to feature
+      }
+    ]
+  },
+  {
+    name: "DevOps",
+    visible: true, // Added 'visible' attribute to category
+    features: [
+      {
+        childFeatures: [],
+        description: "DevOps 1",
+        timestamp: dayjs().add(3, 'year').toISOString(),
+        visible: true, // Added 'visible' attribute to feature
+      }
+    ]
+  }
+] as Category[]);
+
 
   const [fileNames, setFileNames] = useState<string[]>([]);
   const [features, setFeatures] = useState<string[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>("");
   const [numCategories, setNumCategories] = useState(6);
+
+  const coralRef = createRef<HTMLDivElement>();
 
   // Handle file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -191,6 +207,27 @@ export default function Home() {
     }
   }, []);
 
+  const
+      toggleFeature = (features: Feature[], feature: Feature) => features.some((f: Feature) => f.description === feature.description
+        ? f.visible = !f.visible
+        : toggleFeature(f.childFeatures, feature)
+    );
+
+  const onFeatureToggle = useCallback( (feature: Feature) => {
+    const catCopy: Category[] = [...categories];
+    categories.forEach((category: Category, i) => {
+      const features = [...category.features]
+      toggleFeature(features, feature);
+      catCopy[i].features = features;
+    });
+
+    setCategories(catCopy);
+    
+  }, [categories]);
+
+  // const sidebarToggleFeature = useCallback( (feature: Feature, on: boolean) => {
+  //   if (on) 
+  // }, [categories]);
 
   // Fetch available files
   useEffect(() => {
@@ -206,7 +243,7 @@ export default function Home() {
 
   return (
     <div className="layout-container">
-      <Sidebar categories={categories} />
+      <Sidebar categories={categories} onFeatureToggle={onFeatureToggle}/>
 
       <div className="main-content">
         <h1>Untitled Coral Plot of WebEx Features</h1>
@@ -263,9 +300,9 @@ export default function Home() {
             <input type="date" defaultValue={new Date().toISOString().split('T')[0]} />
           </div>
         </div>
-
-      <Coral width={600} height={600} categories={categories} onFeatureHover={onFeatureHover}/>
-
+        <div className="plot">
+          <Coral width={850} height={650} categories={categories} onFeatureHover={onFeatureHover}/>
+        </div>
         <div>
           <ul>
             {fileNames.map((fileName: string, index: number) => (

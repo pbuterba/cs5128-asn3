@@ -1,12 +1,14 @@
 export type Category = {
   name: string;
   features: Feature[];
+  visible: boolean;
 };
 
 export type Feature = {
   description: string;
   timestamp: string;
   childFeatures: Feature[];
+  visible: boolean;
 };
 
 // Tentative types I am hoping the parsing team will give us

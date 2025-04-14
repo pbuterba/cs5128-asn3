@@ -1,15 +1,18 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, RefObject, useRef } from "react";
 import { FaEye, FaEyeSlash, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { Category, Feature } from "./types/feature";
 import { rainbow } from "./components/colors";
 
 interface SidebarProps {
   categories: Category[]
+  onFeatureToggle: ((feature: Feature) => void)
 }
 
 // Sidebar component
-const Sidebar = ({ categories }: SidebarProps) => {
+const Sidebar = ({ categories, onFeatureToggle }: SidebarProps) => {
+  const onFeatureToggleRef = useRef<typeof onFeatureToggle>(null);
+  onFeatureToggleRef.current = onFeatureToggle; 
   const [activeDropdowns, setActiveDropdowns] = useState<{ [key: string]: boolean }>({});
   const [visibleItems, setVisibleItems] = useState<{ [key: string]: boolean }>(() => {
     // Initialize all categories and features to visible (true)
@@ -18,7 +21,7 @@ const Sidebar = ({ categories }: SidebarProps) => {
     categories.forEach(category => {
       initialState[category.name] = true;
       // Initialize all features under each category to visible
-      [...Array(5)].forEach((_, index) => {
+      category.features.forEach((_, index) => {
         initialState[`${category}-feature-${index}`] = true;
       });
     });
@@ -33,6 +36,10 @@ const Sidebar = ({ categories }: SidebarProps) => {
     }));
   };
 
+  const toggleFeature = (feature: Feature) => {
+    onFeatureToggleRef.current?.(feature);
+  };
+
   const toggleVisibility = (itemId: string, isCategory: boolean = false) => {
     setVisibleItems((prev) => {
       const newState = { ...prev };
@@ -41,7 +48,7 @@ const Sidebar = ({ categories }: SidebarProps) => {
 
       // If this is a category toggle, update all features under this category
       if (isCategory) {
-        [...Array(5)].forEach((_, index) => {
+        categories.filter((cat: Category) => cat.name === itemId).forEach((_, index) => {
           const featureId = `${itemId}-feature-${index}`;
           newState[featureId] = newVisibility;
         });
@@ -83,10 +90,10 @@ const Sidebar = ({ categories }: SidebarProps) => {
                       <span>{feature.description}</span>
                       <button
                         className="visibility-toggle"
-                        onClick={() => toggleVisibility(featureId)}
-                        title={visibleItems[featureId] ? "Hide Feature" : "Show Feature"}
+                        onClick={() => toggleFeature(feature)}
+                        title={feature.visible ? "Hide Feature" : "Show Feature"}
                       >
-                        {visibleItems[featureId] ? <FaEye /> : <FaEyeSlash />}
+                        {feature.visible ? <FaEye /> : <FaEyeSlash />}
                       </button>
                     </li>
                   );
