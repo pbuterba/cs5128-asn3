@@ -273,8 +273,7 @@ export default function Home() {
       <Sidebar categories={categories} onFeatureToggle={onFeatureToggle} onCategoryToggle={onCategoryToggle}/>
 
       <div className="main-content">
-        <h1>Untitled Coral Plot of WebEx Features</h1>
-
+        <h1>{selectedFileName ? `${selectedFileName} Coral Plot` : "Untitled Coral Plot"}</h1>
         {/* Add CSV Upload Button and Dropdown */}
         <div className="csv-upload-section">
           <button onClick={() => document.getElementById("file-input")?.click()}>
@@ -333,9 +332,9 @@ export default function Home() {
           </div>
           {hoveredFeature && (
           <div style={{
-            position: 'absolute',
-            top: cursorPosition ? cursorPosition.y - 200 : 0,
-            left: cursorPosition ? cursorPosition.x -60 : 0,
+            position: 'fixed',
+            top: cursorPosition ? cursorPosition.y - 60 : 0,
+            left: cursorPosition ? cursorPosition.x + 10 : 0,
             backgroundColor: '#111',
             color: 'white',
             border: '1px solid #444',
@@ -349,21 +348,6 @@ export default function Home() {
             <strong>Timestamp:</strong> {dayjs(hoveredFeature.timestamp).format("YYYY-MM-DD")}
           </div>
           )}
-        </div>
-        <div>
-          <ul>
-            {fileNames.map((fileName: string, index: number) => (
-              <li key={index}>{fileName}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <ul>
-            {Array.isArray(features) && features.map((feature: string, index: number) => (
-              <li key={index}>{feature}</li>
-            ))}
-          </ul>
         </div>
       </div>
     </div>

@@ -193,7 +193,7 @@ class CoralBase {
             // container.selectAll('line').attr('opacity', 0.65);
             const targetLine: SVGLineElement = event.target as SVGLineElement;
             targetLine.setAttribute('opacity', '1');
-            this.onFeatureHoverRef.current?.(feature, event.clientX, event.clientY);
+            this.onFeatureHoverRef.current?.(feature, event.screenX, event.screenY);
           })
           .on("mouseout", () => {
             container.selectAll('line').attr('opacity', 1);
@@ -207,7 +207,7 @@ class CoralBase {
           .attr('fill', "white")
           .attr('r', 4)
           .on("mouseover", (event) => {
-            this.onFeatureHoverRef.current?.(feature, event.clientX, event.clientY);
+            this.onFeatureHoverRef.current?.(feature, event.screenX, event.screenY);
           })
           .on("mouseout", () => {
             this.onFeatureHoverRef.current?.(null, undefined, undefined);
@@ -256,16 +256,6 @@ export default function Coral({width, height, categories, onFeatureHover}) {
             });
 
         svg.call(zoom);
-
-        // for (let i = 0; i < 1000; i++) {
-        //   const pos = plotPolygonPoint((i / 1000) * (2 * Math.PI), 3, 150);
-        //   svg
-        //     .append('circle')
-        //     .attr('cx', (width/2) + pos.y)
-        //     .attr('cy', (height/2) - pos.x)
-        //     .attr('fill', 'white')
-        //     .attr('r', 5);
-        // }
     }, [categories, width, height]);
 
     return <svg width={width} height={height} ref={ref} />;
