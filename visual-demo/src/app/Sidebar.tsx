@@ -2,8 +2,12 @@
 import React, { useState } from "react";
 import { FaEye, FaEyeSlash, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
+interface SidebarProps {
+  numCategories: number;
+}
+
 // Sidebar component
-const Sidebar = () => {
+const Sidebar = ({ numCategories }: SidebarProps) => {
   const [activeDropdowns, setActiveDropdowns] = useState<{ [key: string]: boolean }>({});
   const [visibleItems, setVisibleItems] = useState<{ [key: string]: boolean }>({});
 
@@ -21,6 +25,7 @@ const Sidebar = () => {
     }));
   };
 
+  // Generate categories based on numCategories
   const categories = [
     { name: "Logging", color: "#4CAF50" },
     { name: "Networking", color: "#2196F3" },
@@ -28,7 +33,21 @@ const Sidebar = () => {
     { name: "Visual Fidelity", color: "#FF9800" },
     { name: "Communication", color: "#E91E63" },
     { name: "Audio", color: "#00BCD4" },
-  ];
+    { name: "Performance", color: "#FF5722" },
+    { name: "Security", color: "#795548" },
+    { name: "Integration", color: "#607D8B" },
+    { name: "Analytics", color: "#009688" },
+    { name: "Automation", color: "#673AB7" },
+    { name: "Collaboration", color: "#3F51B5" },
+    { name: "Customization", color: "#FFC107" },
+    { name: "Mobile", color: "#8BC34A" },
+    { name: "API", color: "#FF4081" },
+    { name: "Storage", color: "#00BCD4" },
+    { name: "Search", color: "#FF9800" },
+    { name: "Notifications", color: "#9C27B0" },
+    { name: "Reporting", color: "#4CAF50" },
+    { name: "Workflow", color: "#2196F3" },
+  ].slice(0, numCategories);
 
   return (
     <div className="sidebar">

@@ -32,6 +32,7 @@ export default function Home() {
   const [fileNames, setFileNames] = useState([]);
   const [features, setFeatures] = useState<string[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null); // State for the file
+  const [numCategories, setNumCategories] = useState(6);
 
   // Handle file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,6 +41,16 @@ export default function Home() {
       setSelectedFile(file);
       // You can then process the file (upload it to the server, read it, etc.)
       console.log("File selected:", file);
+    }
+  };
+
+  // Handle number of categories change
+  const handleNumCategoriesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
+    if (!isNaN(value)) {
+      // Cap the value between 1 and 6
+      const cappedValue = Math.min(Math.max(value, 1), 6);
+      setNumCategories(cappedValue);
     }
   };
 
@@ -73,7 +84,7 @@ export default function Home() {
 
   return (
     <div className="layout-container">
-      <Sidebar />
+      <Sidebar numCategories={numCategories} />
 
       <div className="main-content">
         <h1>Untitled Coral Plot of WebEx Features</h1>
@@ -96,7 +107,13 @@ export default function Home() {
         <div className="filters-section">
           <div>
             <label>Number of Categories</label>
-            <input type="number" defaultValue={6} />
+            <input 
+              type="number" 
+              value={numCategories}
+              onChange={handleNumCategoriesChange}
+              min="1"
+              max="6"
+            />
           </div>
           <div>
             <label>Filter</label>
