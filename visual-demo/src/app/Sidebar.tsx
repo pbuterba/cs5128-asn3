@@ -9,7 +9,26 @@ interface SidebarProps {
 // Sidebar component
 const Sidebar = ({ numCategories }: SidebarProps) => {
   const [activeDropdowns, setActiveDropdowns] = useState<{ [key: string]: boolean }>({});
-  const [visibleItems, setVisibleItems] = useState<{ [key: string]: boolean }>({});
+  const [visibleItems, setVisibleItems] = useState<{ [key: string]: boolean }>(() => {
+    // Initialize all categories and features to visible (true)
+    const initialState: { [key: string]: boolean } = {};
+    const categories = [
+      "Logging", "Networking", "User Experience", "Visual Fidelity", "Communication",
+      "Audio", "Performance", "Security", "Integration", "Analytics", "Automation",
+      "Collaboration", "Customization", "Mobile", "API", "Storage", "Search",
+      "Notifications", "Reporting", "Workflow"
+    ].slice(0, numCategories);
+
+    categories.forEach(category => {
+      initialState[category] = true;
+      // Initialize all features under each category to visible
+      [...Array(5)].forEach((_, index) => {
+        initialState[`${category}-feature-${index}`] = true;
+      });
+    });
+
+    return initialState;
+  });
 
   const toggleDropdown = (name: string) => {
     setActiveDropdowns((prev) => ({
@@ -18,11 +37,22 @@ const Sidebar = ({ numCategories }: SidebarProps) => {
     }));
   };
 
-  const toggleVisibility = (itemId: string) => {
-    setVisibleItems((prev) => ({
-      ...prev,
-      [itemId]: !prev[itemId],
-    }));
+  const toggleVisibility = (itemId: string, isCategory: boolean = false) => {
+    setVisibleItems((prev) => {
+      const newState = { ...prev };
+      const newVisibility = !prev[itemId];
+      newState[itemId] = newVisibility;
+
+      // If this is a category toggle, update all features under this category
+      if (isCategory) {
+        [...Array(5)].forEach((_, index) => {
+          const featureId = `${itemId}-feature-${index}`;
+          newState[featureId] = newVisibility;
+        });
+      }
+
+      return newState;
+    });
   };
 
   // Generate categories based on numCategories
@@ -66,7 +96,7 @@ const Sidebar = ({ numCategories }: SidebarProps) => {
               </div>
               <button
                 className="visibility-toggle"
-                onClick={() => toggleVisibility(category.name)}
+                onClick={() => toggleVisibility(category.name, true)}
                 title={visibleItems[category.name] ? "Hide Category" : "Show Category"}
               >
                 {visibleItems[category.name] ? <FaEye /> : <FaEyeSlash />}
