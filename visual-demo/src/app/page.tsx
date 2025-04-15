@@ -135,9 +135,8 @@ export default function Home() {
 
   const [fileNames, setFileNames] = useState<string[]>([]);
   const [features] = useState<string[]>([]);
-  const [_, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>("");
-  const [numCategories, setNumCategories] = useState(6);
+  const [numCategories, setNumCategories] = useState(4);
   const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
   const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number } | null>(null);
   const coralContainerRef = useRef<HTMLDivElement>(null);
@@ -147,9 +146,8 @@ export default function Home() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
-      setSelectedFile(file);
-      setFileNames(prevFiles => [...prevFiles, file.name]);
-      setSelectedFileName(file.name);
+      const fileName = file.name.replace('.csv', '');
+      setFileNames(prevFiles => [...prevFiles, fileName]);
       
       const reader = new FileReader();
       reader.onload = (event) => {

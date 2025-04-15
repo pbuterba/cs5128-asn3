@@ -40,12 +40,12 @@ function createJsonFile(csvContent: string[], fileName: string) {
 // Helper function to parse CSV line while respecting quotes
 function parseCSVLine(line: string): string[] {
   const result: string[] = [];
-  let current = '';
+  let current = "";
   let inQuotes = false;
-  
+
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
-    
+
     if (char === '"') {
       if (inQuotes && line[i + 1] === '"') {
         // Handle escaped quotes
@@ -55,18 +55,18 @@ function parseCSVLine(line: string): string[] {
         // Toggle quote state
         inQuotes = !inQuotes;
       }
-    } else if (char === ',' && !inQuotes) {
+    } else if (char === "," && !inQuotes) {
       // End of field
       result.push(current.trim());
-      current = '';
+      current = "";
     } else {
       current += char;
     }
   }
-  
+
   // Add the last field
   result.push(current.trim());
-  
+
   return result;
 }
 
@@ -86,7 +86,7 @@ async function gptCall(csvContent: string[], fileName: string): Promise<void> {
       "You are a precise assistant that returns only structured JSON. You do not explain anything. You return a clean and valid JSON object exactly in the specified format.",
     name: fileName + " Assistant",
     tools: [{ type: "file_search" }],
-    model: "gpt-4o",
+    model: "o3-mini-2025-01-31",
   });
 
   const file = await openai.files.create({
@@ -112,7 +112,7 @@ export default async function handler(
 ) {
   // Parse the request body directly since it's now JSON
   const { csv, fileName } = req.body;
-  
+
   return new Promise<void>((resolve, reject) => {
     // fakeGPTCall(csv, fileName)
     gptCall(csv, fileName)

@@ -18,11 +18,12 @@ interface FeatureDefinition {
 const openai = new OpenAI({ apiKey: process.env.GPT_KEY });
 
 const query = (numCategories: number) => `
-  Analyze the features from the embedded JSON data in the vector store. Based on the meaning/semantics of those features, define exactly ${numCategories} distinct and meaningful category names. Assign one of these 4 categories to each feature. For each feature, find related features (based on similarity) and list their IDs as children.
+  Analyze the features from the embedded JSON data in the vector store. Based on the meaning/semantics of those features, define exactly ${numCategories} distinct and meaningful category names. Assign one of these ${numCategories} categories to each feature. For each feature, find related features (based on similarity) and list their IDs as children.
 
 Important constraints:
-- Only 4 categories are allowed.
+- Only ${numCategories} categories are allowed.
 - Every feature must have exactly one of these ${numCategories} categories.
+- All features from the embedded JSON data must be included in the response.
 - Children must be feature IDs (numbers).
 - A feature cannot appear as a child for more than one parent.
 - Avoid circular dependencies: A feature cannot be a child of a feature that is already its child (directly or indirectly). In other words, if feature A is a child of feature B (or any of its descendants), then feature B and any of its ancestors cannot be assigned as children of feature A.
@@ -64,10 +65,7 @@ function getAssistantIdAndFileId(fileName: string): {
   };
 }
 
-async function gptCall(
-  numCategories: number,
-  fileName: string
-): Promise<any> {
+async function gptCall(numCategories: number, fileName: string): Promise<any> {
   const { assistantId, fileId } = getAssistantIdAndFileId(fileName);
   const thread = await openai.beta.threads.create({
     messages: [
@@ -79,7 +77,6 @@ async function gptCall(
       },
     ],
   });
-
 
   return new Promise((resolve, reject) => {
     const streamController = openai.beta.threads.runs
@@ -107,6 +104,7 @@ async function gptCall(
             }
             response = text.value;
           }
+          console.log("Response:", response);
           const features = parseFeatures(response);
           resolve(features);
         } catch (error) {
@@ -156,14 +154,19 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) {
-  const numCategories = Number(req.query.numCategories) ?? 4;
+  const numCategories = Number(req.body.numCategories) ?? 4;
   const fileName = req.body.fileName ?? "";
   return new Promise<void>((resolve, reject) => {
     gptCall(numCategories, fileName as string)
       //fakeGptCall(numCategories as string, "")
       .then((response) => {
         res.statusCode = 200;
-        res.end(JSON.stringify({categories: response.categories, features: makeTree(response.features, fileName)}));
+        res.end(
+          JSON.stringify({
+            categories: response.categories,
+            features: makeTree(response.features, fileName),
+          })
+        );
         resolve();
       })
       .catch((error) => {
