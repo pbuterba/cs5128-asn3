@@ -4,21 +4,9 @@ export interface Feature {
    children: number[]
 }
 
-export interface Metadata {
-   date: Date,
-   description: string
-}
-
 export interface FeatureTreeNode {
    id: number,
    category: string,
    children: FeatureTreeNode[],
-   metadata: Metadata
-}
-
-export interface FeatureData {
-   id: number,
-   description: string,
-   date: string,
-   category: string
+   metadata: Record<string, any>
 }

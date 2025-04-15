@@ -5,13 +5,9 @@ import csv from "csv-parser";
 import fs from "fs";
 import { features } from "process";
 import { metadata } from "@/app/layout";
+import { makeTree } from "../../app/utilities/structure_data";
 
 type FeatureId = number;
-
-interface Features {
-  categories: string[];
-  features: FeatureDefinition[];
-}
 
 interface FeatureDefinition {
   id: FeatureId;
@@ -71,7 +67,7 @@ function getAssistantIdAndFileId(fileName: string): {
 async function gptCall(
   numCategories: number,
   fileName: string
-): Promise<string> {
+): Promise<any> {
   const { assistantId, fileId } = getAssistantIdAndFileId(fileName);
   const thread = await openai.beta.threads.create({
     messages: [
@@ -83,6 +79,7 @@ async function gptCall(
       },
     ],
   });
+
 
   return new Promise((resolve, reject) => {
     const streamController = openai.beta.threads.runs
@@ -166,7 +163,7 @@ export default async function handler(
       //fakeGptCall(numCategories as string, "")
       .then((response) => {
         res.statusCode = 200;
-        res.end(JSON.stringify(response));
+        res.end(JSON.stringify({categories: response.categories, features: makeTree(response.features, fileName)}));
         resolve();
       })
       .catch((error) => {

@@ -1,20 +1,20 @@
 import { readFileSync } from 'fs'
-import { Feature, Metadata, FeatureTreeNode, FeatureData } from '../types/features';
+import { Feature, FeatureTreeNode } from '../types/features';
 
-let metadataMap: Record<number, Metadata> = {};
+let metadataMap: Record<number, Record<string, any>> = {};
 
 export function makeTree(dataList: Feature[], fileName: string): FeatureTreeNode[] | null {
    //Read JSONL file
    let featureDataString: string;
    try {
-      featureDataString = readFileSync('../../../data/' + fileName, 'utf8');
+      featureDataString = readFileSync('./data/' + fileName + '.json', 'utf8');
    } catch(error) {
-      console.error("The file %s does not exist", fileName);
+      console.error("The file %s does not exist", fileName + '.json');
       return null;
    }
 
    //Parse JSON
-   let featureData: FeatureData[];
+   let featureData: any[];
    try {
       featureData = JSON.parse(featureDataString);
    } catch(error) {
@@ -24,11 +24,23 @@ export function makeTree(dataList: Feature[], fileName: string): FeatureTreeNode
 
    //Fill in metadata map
    featureData.forEach((dataEntry) => {
-      const dateComponents: string[] = dataEntry.date.split("-");
-      metadataMap[dataEntry.id] = {
-         date: new Date(parseInt(dateComponents[2]), parseInt(dateComponents[0]), parseInt(dateComponents[1])),
-         description: dataEntry.description
-      };
+      let metadata: Record<string, any> = {};
+      Object.keys(dataEntry).forEach((key) => {
+        if(key != 'id') {
+          let value = dataEntry[key];
+          try {
+            const dateComponents: string[] = dataEntry[key].split("-");
+            const date = new Date(parseInt(dateComponents[2]), parseInt(dateComponents[0]), parseInt(dateComponents[1]));
+            if(isNaN(date.getTime())) {
+              throw new Error();
+            }
+            metadata['date'] = date;
+          } catch(error) {
+            metadata[key] = dataEntry[key];
+          }
+        }
+      });
+      metadataMap[dataEntry.id] = metadata;
    });
   
   const nodeMap: Record<number, FeatureTreeNode> = {};
