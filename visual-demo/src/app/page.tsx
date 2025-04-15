@@ -4,134 +4,136 @@ import Sidebar from "../app/Sidebar";   // Corrected import path
 import "../app/globals.css"; // Correct path to styles directory
 import { useCallback } from "react";
 import Coral from "./components/coral";
-import { Category, Feature } from "./types/feature";
+import { Category, Feature, fTreeToCategories } from "./types/feature";
 import dayjs from "dayjs";
 
 export default function Home() {
   // Mock data structure for the categories and features, passed as props to the Coral component (dayjs objects are converted to ISO strings for serialization)
-  const [categories, setCategories] = useState([
-  {
-    name: "Networking",
-    visible: true, // Added 'visible' attribute to category
-    features: [
-      {
-        childFeatures: [
-          {
-            childFeatures: [{
-              childFeatures: [],
-              description: "Networking 2.5",
-              timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
-              visible: true, // Added 'visible' attribute to feature
-            }],
-            description: "Networking 2",
-            timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
-            visible: true, // Added 'visible' attribute to feature
-          },
-          {
-            childFeatures: [],
-            description: "Networking 3",
-            timestamp: dayjs().add(4, 'year').add(3, 'month').toISOString(),
-            visible: true, // Added 'visible' attribute to feature
-          },
-          {
-            childFeatures: [],
-            description: "Networking 4",
-            timestamp: dayjs().add(5, 'year').add(1, 'month').toISOString(),
-            visible: true, // Added 'visible' attribute to feature
-          }
-        ],
-        description: "Networking 1",
-        timestamp: dayjs().add(3, 'year').toISOString(),
-        visible: true, // Added 'visible' attribute to feature
-      },
-      {
-        childFeatures: [
-          {
-            childFeatures: [],
-            description: "Networking 6",
-            timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
-            visible: true, // Added 'visible' attribute to feature
-          },
-          {
-            childFeatures: [],
-            description: "Networking 7",
-            timestamp: dayjs().add(3, 'year').add(3, 'month').toISOString(),
-            visible: true, // Added 'visible' attribute to feature
-          },
-          {
-            childFeatures: [],
-            description: "Networking 8",
-            timestamp: dayjs().add(6, 'year').add(1, 'month').toISOString(),
-            visible: true, // Added 'visible' attribute to feature
-          }
-        ],
-        description: "Networking 5",
-        timestamp: dayjs().add(3, 'year').toISOString(),
-        visible: true, // Added 'visible' attribute to feature
-      }
-    ]
-  },
-  {
-    name: "OS",
-    visible: true, // Added 'visible' attribute to category
-    features: [
-      {
-        childFeatures: [],
-        description: "OS 1",
-        timestamp: dayjs().add(3, 'year').toISOString(),
-        visible: true, // Added 'visible' attribute to feature
-      }
-    ]
-  },
-  {
-    name: "User Interface",
-    visible: true, // Added 'visible' attribute to category
-    features: [
-      {
-        childFeatures: [],
-        description: "UI 1",
-        timestamp: dayjs().add(3, 'year').toISOString(),
-        visible: true, // Added 'visible' attribute to feature
-      }
-    ]
-  },
-  {
-    name: "API",
-    visible: true, // Added 'visible' attribute to category
-    features: [
-      {
-        childFeatures: [],
-        description: "API 1",
-        timestamp: dayjs().add(3, 'year').toISOString(),
-        visible: true, // Added 'visible' attribute to feature
-      }
-    ]
-  },
-  {
-    name: "QA",
-    visible: true, // Added 'visible' attribute to category
-    features: [
-      {
-        childFeatures: [],
-        description: "QA 1",
-        timestamp: dayjs().add(3, 'year').toISOString(),
-        visible: true, // Added 'visible' attribute to feature
-      }
-    ]
-  },
-  {
-    name: "DevOps",
-    visible: true, // Added 'visible' attribute to category
-    features: [
-      {
-        childFeatures: [],
-        description: "DevOps 1",
-        timestamp: dayjs().add(3, 'year').toISOString(),
-        visible: true, // Added 'visible' attribute to feature
-      }
-    ]
-  }
-] as Category[]);
+  const [categories, setCategories] = useState([] as Category[]);
+
+//   [
+//   {
+//     name: "Networking",
+//     visible: true, // Added 'visible' attribute to category
+//     features: [
+//       {
+//         childFeatures: [
+//           {
+//             childFeatures: [{
+//               childFeatures: [],
+//               description: "Networking 2.5",
+//               timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
+//               visible: true, // Added 'visible' attribute to feature
+//             }],
+//             description: "Networking 2",
+//             timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
+//             visible: true, // Added 'visible' attribute to feature
+//           },
+//           {
+//             childFeatures: [],
+//             description: "Networking 3",
+//             timestamp: dayjs().add(4, 'year').add(3, 'month').toISOString(),
+//             visible: true, // Added 'visible' attribute to feature
+//           },
+//           {
+//             childFeatures: [],
+//             description: "Networking 4",
+//             timestamp: dayjs().add(5, 'year').add(1, 'month').toISOString(),
+//             visible: true, // Added 'visible' attribute to feature
+//           }
+//         ],
+//         description: "Networking 1",
+//         timestamp: dayjs().add(3, 'year').toISOString(),
+//         visible: true, // Added 'visible' attribute to feature
+//       },
+//       {
+//         childFeatures: [
+//           {
+//             childFeatures: [],
+//             description: "Networking 6",
+//             timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
+//             visible: true, // Added 'visible' attribute to feature
+//           },
+//           {
+//             childFeatures: [],
+//             description: "Networking 7",
+//             timestamp: dayjs().add(3, 'year').add(3, 'month').toISOString(),
+//             visible: true, // Added 'visible' attribute to feature
+//           },
+//           {
+//             childFeatures: [],
+//             description: "Networking 8",
+//             timestamp: dayjs().add(6, 'year').add(1, 'month').toISOString(),
+//             visible: true, // Added 'visible' attribute to feature
+//           }
+//         ],
+//         description: "Networking 5",
+//         timestamp: dayjs().add(3, 'year').toISOString(),
+//         visible: true, // Added 'visible' attribute to feature
+//       }
+//     ]
+//   },
+//   {
+//     name: "OS",
+//     visible: true, // Added 'visible' attribute to category
+//     features: [
+//       {
+//         childFeatures: [],
+//         description: "OS 1",
+//         timestamp: dayjs().add(3, 'year').toISOString(),
+//         visible: true, // Added 'visible' attribute to feature
+//       }
+//     ]
+//   },
+//   {
+//     name: "User Interface",
+//     visible: true, // Added 'visible' attribute to category
+//     features: [
+//       {
+//         childFeatures: [],
+//         description: "UI 1",
+//         timestamp: dayjs().add(3, 'year').toISOString(),
+//         visible: true, // Added 'visible' attribute to feature
+//       }
+//     ]
+//   },
+//   {
+//     name: "API",
+//     visible: true, // Added 'visible' attribute to category
+//     features: [
+//       {
+//         childFeatures: [],
+//         description: "API 1",
+//         timestamp: dayjs().add(3, 'year').toISOString(),
+//         visible: true, // Added 'visible' attribute to feature
+//       }
+//     ]
+//   },
+//   {
+//     name: "QA",
+//     visible: true, // Added 'visible' attribute to category
+//     features: [
+//       {
+//         childFeatures: [],
+//         description: "QA 1",
+//         timestamp: dayjs().add(3, 'year').toISOString(),
+//         visible: true, // Added 'visible' attribute to feature
+//       }
+//     ]
+//   },
+//   {
+//     name: "DevOps",
+//     visible: true, // Added 'visible' attribute to category
+//     features: [
+//       {
+//         childFeatures: [],
+//         description: "DevOps 1",
+//         timestamp: dayjs().add(3, 'year').toISOString(),
+//         visible: true, // Added 'visible' attribute to feature
+//       }
+//     ]
+//   }
+// ]
 
   const [fileNames, setFileNames] = useState<string[]>([]);
   const [features] = useState<string[]>([]);
@@ -281,7 +283,7 @@ export default function Home() {
         body: JSON.stringify({ fileName: selectedFileName, numCategories: numCategories }),
       })
         .then((response) => response.json())
-        .then((json) => console.log("Provided Features:", json));
+        .then((json) => setCategories(fTreeToCategories(json.features, json.categories)));
       // this should return a list of FeatureTreeNodes that we (me and Ethan) can then massage to fit the Coral component's needs
     }
     ,[selectedFileName, numCategories]);

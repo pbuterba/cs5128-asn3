@@ -1,4 +1,4 @@
-export interface Feature {
+export interface FeatureNode {
    id: number,
    category: string,
    children: number[]

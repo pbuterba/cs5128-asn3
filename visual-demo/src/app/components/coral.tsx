@@ -96,7 +96,7 @@ class CoralBase {
             const angle = (((2 * Math.PI)/this.categories.length) * i) - (Math.PI / 2);
             const thickness = 4;
             const color = rainbow(this.categories.length, i);
-            const length = 425; // make as long as farthest time point!!
+            const length = 1200; // make as long as farthest time point!!
 
             container.append('line')
                 .attr('x1', this.width / 2)
@@ -175,7 +175,7 @@ class CoralBase {
         const timeDistance = ((timestamp.unix() - minDate.unix()) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2));
 
         const [_, maxBranchTime] = minMaxFeatureDate([feature]);
-        const branchLength = (((maxBranchTime.add(1, 'year').unix() - timestamp.unix())) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2))
+        const branchLength = (((maxBranchTime.add(32, 'M').unix() - timestamp.unix())) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2))
       
         const branchAngle = relativeAngle + (maxAngleOffset * side);
         const pos = plotPolygonPoint(x, y, relativeAngle, numSides, timeDistance);

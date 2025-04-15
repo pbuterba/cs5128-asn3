@@ -23,13 +23,15 @@ const query = (numCategories: number) => `
 Important constraints:
 - Only ${numCategories} categories are allowed.
 - Every feature must have exactly one of these ${numCategories} categories.
-- All features from the embedded JSON data must be included in the response.
+- All features from the embedded JSON data must be included in the response. There will be problems if not every feature is represented.
 - Children must be feature IDs (numbers).
 - A feature cannot appear as a child for more than one parent.
 - Avoid circular dependencies: A feature cannot be a child of a feature that is already its child (directly or indirectly). In other words, if feature A is a child of feature B (or any of its descendants), then feature B and any of its ancestors cannot be assigned as children of feature A.
+- Child features can ONLY be children of features with the same category. If two features have two different categories, they CANNOT be related!
+- Children can have subchildren as well, there is no limit to the depth of the virtual tree, however not every feature needs a child. You are an expert deducer! Decide which features relate to one another, and which stand alone.
 
 Return a single JSON object with:
-- A\`categories\` array (listing the ${numCategories} categories — each only once).
+- A \`categories\` array (listing the ${numCategories} categories — each only once).
 - A \`features\` array where each feature includes:
   - Its \`id\`
   - Its \`category\`
@@ -39,15 +41,17 @@ Expected Output Format (example):
 {
   "categories": ["Performance", "Usability", "Security", "Integration"],
   "features": [
-    {"id": 1, "category": "Performance", "children": [3, 4]},
-    {"id": 2, "category": "Security", "children": [5]},
+    {"id": 1, "category": "Performance", "children": [5]},
+    {"id": 2, "category": "Security", "children": []},
     {"id": 3, "category": "Usability", "children": []},
     {"id": 4, "category": "Integration", "children": []},
-    {"id": 5, "category": "Performance", "children": []}
+    {"id": 5, "category": "Performance", "children": [6, 7]},
+    {"id": 6, "category": "Performance", "children": []},
+    {"id": 7, "category": "Performance", "children": []}
   ]
 }
 
-Do not include any explanations or extra text — just return a single, valid JSON object string.
+Do not include any explanations or extra text or comments — just return a single, valid JSON object string.
 `;
 
 function getAssistantIdAndFileId(fileName: string): {

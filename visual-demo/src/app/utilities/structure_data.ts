@@ -1,9 +1,9 @@
 import { readFileSync } from 'fs'
-import { Feature, FeatureTreeNode } from '../types/features';
+import { FeatureNode, FeatureTreeNode } from '../types/features';
 
 let metadataMap: Record<number, Record<string, any>> = {};
 
-export function makeTree(dataList: Feature[], fileName: string): FeatureTreeNode[] | null {
+export function makeTree(dataList: FeatureNode[], fileName: string): FeatureTreeNode[] | null {
    //Read JSONL file
    let featureDataString: string;
    try {
@@ -71,7 +71,7 @@ export function makeTree(dataList: Feature[], fileName: string): FeatureTreeNode
   return rootIds.map((rootId) => nodeMap[rootId]);
 }
 
-function addChildrenRecursively(childId: number, nodeMap: Record<number, FeatureTreeNode>, dataList: Feature[]): void {
+function addChildrenRecursively(childId: number, nodeMap: Record<number, FeatureTreeNode>, dataList: FeatureNode[]): void {
   const child = nodeMap[childId];
 
   const childrenOfChild = dataList.find((feature) => feature.id === childId)?.children;
