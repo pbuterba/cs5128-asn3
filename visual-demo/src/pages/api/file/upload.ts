@@ -8,12 +8,14 @@ function createJsonFile(csvContent: string[], fileName: string) {
   if (!csvContent) {
     return;
   }
-  const csvHeaders = csvContent[0].split(",").map((item) => item.trim());
+
+  // Parse headers properly
+  const csvHeaders = parseCSVLine(csvContent[0]);
   const jsonObjects: any[] = [];
 
   csvContent.forEach((line, index) => {
-    if (index === 0) return;
-    const values = line.split(",").map((item) => item.trim());
+    if (index === 0) return; // Skip header row
+    const values = parseCSVLine(line);
     if (values.length !== csvHeaders.length) {
       console.error(
         `Line ${index + 1} does not match the number of headers. Skipping...`
@@ -26,12 +28,46 @@ function createJsonFile(csvContent: string[], fileName: string) {
     });
     jsonObjects.push(tempObject);
   });
+
   const jsonFilePath = `./data/${fileName}.json`;
   const dataDir = "./data";
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
   }
   fs.writeFileSync(jsonFilePath, JSON.stringify(jsonObjects), "utf-8");
+}
+
+// Helper function to parse CSV line while respecting quotes
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        // Handle escaped quotes
+        current += '"';
+        i++;
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // End of field
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  
+  // Add the last field
+  result.push(current.trim());
+  
+  return result;
 }
 
 async function gptCall(csvContent: string[], fileName: string): Promise<void> {

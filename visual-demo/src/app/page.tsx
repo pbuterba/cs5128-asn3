@@ -40,25 +40,25 @@ export default function Home() {
     const file = e.target.files ? e.target.files[0] : null;
     if (file) {
       setSelectedFile(file);
-      // Add the new file to the fileNames list
       setFileNames(prevFiles => [...prevFiles, file.name]);
       setSelectedFileName(file.name);
       
-      // Process the CSV file to remove commas from cells
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target && event.target.result) {
           const csvContent = event.target.result as string;
           const lines = csvContent.split('\n');
           
-          // Process each line to remove commas from cells
+          // Process each line while preserving commas in content
           const processedLines = lines.map(line => {
-            // Split by comma but preserve quoted content
-            const cells = line.split(',');
-            // Remove commas from each cell
-            const processedCells = cells.map(cell => cell.trim().replace(/,/g, ''));
-            // Join back with commas
-            return processedCells.join(',');
+            // Check if the line contains quoted content
+            if (line.includes('"')) {
+              // Keep the line as is if it contains quoted content
+              return line;
+            } else {
+              // For non-quoted content, just trim whitespace
+              return line.trim();
+            }
           });
           
           // Send the processed CSV to the backend
