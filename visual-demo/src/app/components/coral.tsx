@@ -78,7 +78,7 @@ class CoralBase {
         this.svgRef = svgRef;
         this.categories = categories;
         const [a, b] = minMaxCategoriesDate(categories);
-        this.minDate = a.subtract(6, 'M');
+        this.minDate = a.subtract(5, 'M');
         this.maxDate = b.add(6, 'M');
         this.onFeatureHoverRef = onFeatureHoverRef;
     }
@@ -94,7 +94,7 @@ class CoralBase {
         this.categories.forEach((category: Category, i) => {
             if (!category.visible) return;
             const angle = (((2 * Math.PI)/this.categories.length) * i) - (Math.PI / 2);
-            const thickness = 4;
+            const thickness = 2;
             const color = rainbow(this.categories.length, i);
             const length = 1200; // make as long as farthest time point!!
 
@@ -111,6 +111,7 @@ class CoralBase {
             category.features.forEach((feature: Feature, j) => {
                 let factor = 1;
                 if (j % 2 === 0) factor = -1;
+                feature.timestamp = dayjs(feature.timestamp).add((Math.random() * 14) - 7, 'day').toISOString();
                 this.drawBranch(container, this.width / 2, this.height / 2, this.width, this.height, feature, thickness * .85, rainbow(this.categories.length, i), 0, factor, angle, this.categories.length, this.minDate, this.maxDate);
             });
         });
@@ -169,7 +170,7 @@ class CoralBase {
 
     drawBranch(container: d3.Selection<SVGGElement, unknown, null, undefined>, x: number, y: number, width: number, height: number, feature: Feature, thickness: number, color: string, childDepth: number, side: number, relativeAngle: number, numSides: number, minDate: dayjs.Dayjs, maxDate: dayjs.Dayjs) {
         if (!feature.visible) return;
-        const maxAngleOffset = ((Math.PI * 2) / numSides) / (2 * (childDepth + 2));
+        const maxAngleOffset = ((Math.PI * 2) / numSides) / (4 * (childDepth + 2));
         
         const timestamp = dayjs(feature.timestamp);
         const timeDistance = ((timestamp.unix() - minDate.unix()) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2));
@@ -237,7 +238,7 @@ export default function Coral({width, height, categories, onFeatureHover}) {
         previousK.current = 1;
 
         const zoom = d3.zoom<SVGSVGElement, unknown>()
-            .scaleExtent([0.1, 10]) // adjust min/max zoom as needed
+            .scaleExtent([0.1, 30]) // adjust min/max zoom as needed
             .on("zoom", (event) => {
                 container.attr("transform", event.transform);
                 const scale = previousK.current / event.transform.k;

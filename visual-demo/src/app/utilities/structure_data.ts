@@ -3,6 +3,50 @@ import { FeatureNode, FeatureTreeNode } from '../types/features';
 
 let metadataMap: Record<number, Record<string, any>> = {};
 
+export function assignChildrenToFeatures(features: FeatureNode[]): FeatureNode[] {
+  const categoryMap: Record<string, FeatureNode[]> = {};
+  const assignedChildren = new Set<number>(); // Keep track of assigned child IDs
+  const rootProbability = 0.7; // Increased probability of a feature being a root
+
+  // Group features by category for faster lookup
+  for (const feature of features) {
+    if (!categoryMap[feature.category]) {
+      categoryMap[feature.category] = [];
+    }
+    categoryMap[feature.category].push(feature);
+  }
+
+  for (const parent of features) {
+    // Determine if the current feature should have children
+    if (Math.random() < rootProbability) {
+      parent.children = []; // Assign no children, making it a potential root
+      continue; // Move to the next feature
+    }
+
+    const sameCategoryFeatures = categoryMap[parent.category];
+    // Filter out children that are not already assigned and have a smaller ID
+    const potentialChildren = sameCategoryFeatures.filter(
+      (child) => child.id < parent.id && !assignedChildren.has(child.id)
+    );
+
+    const numberOfChildren = Math.floor(
+      Math.random() * Math.min(4, potentialChildren.length + 1)
+    );
+    const selectedChildren: number[] = [];
+
+    // Randomly select children from the potential children
+    while (selectedChildren.length < numberOfChildren && potentialChildren.length > 0) {
+      const randomIndex = Math.floor(Math.random() * potentialChildren.length);
+      const selectedChild = potentialChildren.splice(randomIndex, 1)[0]; // Remove to avoid duplicates for this parent
+      selectedChildren.push(selectedChild.id);
+      assignedChildren.add(selectedChild.id); // Mark as assigned
+    }
+
+    parent.children = selectedChildren;
+  }
+  return features;
+}
+
 export function makeTree(dataList: FeatureNode[], fileName: string): FeatureTreeNode[] | null {
    //Read JSONL file
    let featureDataString: string;
@@ -52,8 +96,8 @@ export function makeTree(dataList: FeatureNode[], fileName: string): FeatureTree
       metadata: metadataMap[feature.id],
     };
   });
-
-  dataList.forEach((feature) => {
+  
+  dataList.forEach((feature: FeatureNode) => {
     feature.children.forEach((childId) => {
       if (nodeMap[childId]) {
         nodeMap[feature.id].children.push(nodeMap[childId]);
@@ -67,7 +111,6 @@ export function makeTree(dataList: FeatureNode[], fileName: string): FeatureTree
   const allIds = new Set(dataList.map((n) => n.id));
   const childIds = new Set(dataList.flatMap((n) => n.children));
   const rootIds = [...allIds].filter((id) => !childIds.has(id));
-
   return rootIds.map((rootId) => nodeMap[rootId]);
 }
 

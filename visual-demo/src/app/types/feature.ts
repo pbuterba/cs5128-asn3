@@ -15,7 +15,6 @@ export type Feature = {
 };
 
 export const fTreeToCategories = (featureNodes: FeatureTreeNode[], categories: string[]): Category[] => {
-  console.log('helo');
   const finalCategories: Category[] = [];
   categories.forEach((category: string) => {
     const newCat: Category = {
@@ -28,7 +27,6 @@ export const fTreeToCategories = (featureNodes: FeatureTreeNode[], categories: s
     });
     finalCategories.push(newCat);
   });
-  console.log(finalCategories);
   return finalCategories;
 };
 

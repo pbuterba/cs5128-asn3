@@ -5,7 +5,8 @@ import csv from "csv-parser";
 import fs from "fs";
 import { features } from "process";
 import { metadata } from "@/app/layout";
-import { makeTree } from "../../app/utilities/structure_data";
+import { assignChildrenToFeatures, makeTree } from "../../app/utilities/structure_data";
+import { mockZoomData } from "@/mockZoom";
 
 type FeatureId = number;
 
@@ -18,7 +19,7 @@ interface FeatureDefinition {
 const openai = new OpenAI({ apiKey: process.env.GPT_KEY });
 
 const query = (numCategories: number) => `
-  Analyze the features from the embedded JSON data in the vector store. Based on the meaning/semantics of those features, define exactly ${numCategories} distinct and meaningful category names. Assign one of these ${numCategories} categories to each feature. For each feature, find related features (based on similarity) and list their IDs as children.
+Analyze the features from the embedded JSON data in the vector store. Based on the meaning/semantics of those features, define exactly ${numCategories} distinct and meaningful category names. Assign one of these ${numCategories} categories to each feature. For each feature, find related features (based on similarity) and list their IDs as children.
 
 Important constraints:
 - Only ${numCategories} categories are allowed.
@@ -29,7 +30,7 @@ Important constraints:
 - Avoid circular dependencies: A feature cannot be a child of a feature that is already its child (directly or indirectly). In other words, if feature A is a child of feature B (or any of its descendants), then feature B and any of its ancestors cannot be assigned as children of feature A.
 - Child features can ONLY be children of features with the same category. If two features have two different categories, they CANNOT be related!
 - Children can have subchildren as well, there is no limit to the depth of the virtual tree, however not every feature needs a child. You are an expert deducer! Decide which features relate to one another, and which stand alone.
-
+- In the past you have connected features where each feature has one child, in a long chain. Please do not do this. Use reason, but do not force relationships between child features where they don't exist. Be conservative in your connections.
 Return a single JSON object with:
 - A \`categories\` array (listing the ${numCategories} categories — each only once).
 - A \`features\` array where each feature includes:
@@ -83,38 +84,41 @@ async function gptCall(numCategories: number, fileName: string): Promise<any> {
   });
 
   return new Promise((resolve, reject) => {
-    const streamController = openai.beta.threads.runs
-      .stream(thread.id, {
-        assistant_id: assistantId,
-      })
-      .on("messageDone", async (event) => {
-        try {
-          let response = "";
-          if (event.content[0].type === "text") {
-            const { text } = event.content[0];
-            const { annotations } = text;
-            const citations: string[] = [];
-            let index = 0;
-            for (const annotation of annotations) {
-              text.value = text.value.replace(annotation.text, `[${index}]`);
-              const { file_citation } = annotation as any;
-              if (file_citation) {
-                const citedFile = await openai.files.retrieve(
-                  file_citation.file_id
-                );
-                citations.push(`[${index}] ${citedFile.filename}`);
-              }
-              index++;
-            }
-            response = text.value;
-          }
-          console.log("Response:", response);
-          const features = parseFeatures(response);
+    // const streamController = openai.beta.threads.runs
+    //   .stream(thread.id, {
+    //     assistant_id: assistantId,
+    //   })
+    //   .on("messageDone", async (event) => {
+    //     try {
+    //       let response = "";
+    //       if (event.content[0].type === "text") {
+    //         const { text } = event.content[0];
+    //         const { annotations } = text;
+    //         const citations: string[] = [];
+    //         let index = 0;
+    //         for (const annotation of annotations) {
+    //           text.value = text.value.replace(annotation.text, `[${index}]`);
+    //           const { file_citation } = annotation as any;
+    //           if (file_citation) {
+    //             const citedFile = await openai.files.retrieve(
+    //               file_citation.file_id
+    //             );
+    //             citations.push(`[${index}] ${citedFile.filename}`);
+    //           }
+    //           index++;
+    //         }
+    //         response = text.value;
+    //       }
+    //       console.log("Response:", response);
+          const features = {
+            categories: mockZoomData.categories,
+            features: assignChildrenToFeatures(mockZoomData.features)
+          };
           resolve(features);
-        } catch (error) {
-          reject(error);
-        }
-      });
+        // } catch (error) {
+        //   reject(error);
+        // }
+      // });
   });
 }
 
@@ -161,7 +165,26 @@ export default async function handler(
   const numCategories = Number(req.body.numCategories) ?? 4;
   const fileName = req.body.fileName ?? "";
   return new Promise<void>((resolve, reject) => {
-    gptCall(numCategories, fileName as string)
+    // gptCall(numCategories, fileName as string)
+    //   //fakeGptCall(numCategories as string, "")
+    //   .then((response) => {
+    //     res.statusCode = 200;
+    //     res.end(
+    //       JSON.stringify({
+    //         categories: response.categories,
+    //         features: makeTree(response.features, fileName),
+    //       })
+    //     );
+    //     resolve();
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //     res.json(error);
+    //     res.status(405).end();
+    //     resolve();
+    //   });
+
+      gptCall(numCategories, fileName as string)
       //fakeGptCall(numCategories as string, "")
       .then((response) => {
         res.statusCode = 200;
