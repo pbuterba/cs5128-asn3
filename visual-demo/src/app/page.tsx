@@ -271,30 +271,22 @@ export default function Home() {
 
     // Fetch features when a file is selected or the number of categories changes
     // This may be able to be moved into the individual category number and file name change handlers, but for now we're putting it here...
-    // useEffect(() => {
-    //   // Make request to fetch features when a new file is selected or the number of categories changes
-    //   // In principle, we should only make this request when a new file/number of categories is selected and the results don't already exist
-    //   if (!selectedFileName || !numCategories) return;
-    //   // get file ID from somewhere...
-    //   const filename = "temp"
-    //   fetch(`/api/features/${filename}`, {
-    //     method: "GET",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //   })
-    //     .then((response) => {console.log("Response:", response); return response.json();})
-    //     .then((response) => response.json())
-    //     .then((json) => setFileNames(json));
-  
-      
-    //   // I'm pretty sure the results are saved to a file
-
-    //   // From there, the response can be parsed (using the functions in utilities)
-    //   // Next, the resultant tree can be transformed in the categories structure that Coral expects
-    //   // Finally, the categories state can be updated with the new data
-    // }
-    // ,[selectedFileName, numCategories]);
+    useEffect(() => {
+      // Make request to fetch features when a new file is selected or the number of categories changes
+      // In principle, we should only make this request when a new file/number of categories is selected and the results don't already exist
+      if (!selectedFileName || !numCategories) return;
+      fetch("/api/features", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fileName: selectedFileName, numCategories: numCategories }),
+      })
+        .then((response) => response.json())
+        .then((json) => console.log("Provided Features:", json));
+      // this should return a list of FeatureTreeNodes that we (me and Ethan) can then massage to fit the Coral component's needs
+    }
+    ,[selectedFileName, numCategories]);
 
   return (
     <div className="layout-container">
