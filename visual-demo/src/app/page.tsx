@@ -7,138 +7,138 @@ import Coral from "./components/coral";
 import { Category, Feature, fTreeToCategories } from "./types/feature";
 import dayjs from "dayjs";
 import Loader from "./components/loader";
-import { mockZoomData } from "@/mockZoom";
 
 export default function Home() {
   // Mock data structure for the categories and features, passed as props to the Coral component (dayjs objects are converted to ISO strings for serialization)
-  const [categories, setCategories] = useState([
-  // {
-  //   name: "Networking",
-  //   visible: true, // Added 'visible' attribute to category
-  //   features: [
-  //     {
-  //       childFeatures: [
-  //         {
-  //           childFeatures: [{
-  //             childFeatures: [],
-  //             description: "Networking 2.5",
-  //             timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
-  //             visible: true, // Added 'visible' attribute to feature
-  //           }],
-  //           description: "Networking 2",
-  //           timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
-  //           visible: true, // Added 'visible' attribute to feature
-  //         },
-  //         {
-  //           childFeatures: [],
-  //           description: "Networking 3",
-  //           timestamp: dayjs().add(4, 'year').add(3, 'month').toISOString(),
-  //           visible: true, // Added 'visible' attribute to feature
-  //         },
-  //         {
-  //           childFeatures: [],
-  //           description: "Networking 4",
-  //           timestamp: dayjs().add(5, 'year').add(1, 'month').toISOString(),
-  //           visible: true, // Added 'visible' attribute to feature
-  //         }
-  //       ],
-  //       description: "Networking 1",
-  //       timestamp: dayjs().add(3, 'year').toISOString(),
-  //       visible: true, // Added 'visible' attribute to feature
-  //     },
-  //     {
-  //       childFeatures: [
-  //         {
-  //           childFeatures: [],
-  //           description: "Networking 6",
-  //           timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
-  //           visible: true, // Added 'visible' attribute to feature
-  //         },
-  //         {
-  //           childFeatures: [],
-  //           description: "Networking 7",
-  //           timestamp: dayjs().add(3, 'year').add(3, 'month').toISOString(),
-  //           visible: true, // Added 'visible' attribute to feature
-  //         },
-  //         {
-  //           childFeatures: [],
-  //           description: "Networking 8",
-  //           timestamp: dayjs().add(6, 'year').add(1, 'month').toISOString(),
-  //           visible: true, // Added 'visible' attribute to feature
-  //         }
-  //       ],
-  //       description: "Networking 5",
-  //       timestamp: dayjs().add(3, 'year').toISOString(),
-  //       visible: true, // Added 'visible' attribute to feature
-  //     }
-  //   ]
-  // },
-  // {
-  //   name: "OS",
-  //   visible: true, // Added 'visible' attribute to category
-  //   features: [
-  //     {
-  //       childFeatures: [],
-  //       description: "OS 1",
-  //       timestamp: dayjs().add(3, 'year').toISOString(),
-  //       visible: true, // Added 'visible' attribute to feature
-  //     }
-  //   ]
-  // },
-  // {
-  //   name: "User Interface",
-  //   visible: true, // Added 'visible' attribute to category
-  //   features: [
-  //     {
-  //       childFeatures: [],
-  //       description: "UI 1",
-  //       timestamp: dayjs().add(3, 'year').toISOString(),
-  //       visible: true, // Added 'visible' attribute to feature
-  //     }
-  //   ]
-  // },
-  // {
-  //   name: "API",
-  //   visible: true, // Added 'visible' attribute to category
-  //   features: [
-  //     {
-  //       childFeatures: [],
-  //       description: "API 1",
-  //       timestamp: dayjs().add(3, 'year').toISOString(),
-  //       visible: true, // Added 'visible' attribute to feature
-  //     }
-  //   ]
-  // },
-  // {
-  //   name: "QA",
-  //   visible: true, // Added 'visible' attribute to category
-  //   features: [
-  //     {
-  //       childFeatures: [],
-  //       description: "QA 1",
-  //       timestamp: dayjs().add(3, 'year').toISOString(),
-  //       visible: true, // Added 'visible' attribute to feature
-  //     }
-  //   ]
-  // },
-  // {
-  //   name: "DevOps",
-  //   visible: true, // Added 'visible' attribute to category
-  //   features: [
-  //     {
-  //       childFeatures: [],
-  //       description: "DevOps 1",
-  //       timestamp: dayjs().add(3, 'year').toISOString(),
-  //       visible: true, // Added 'visible' attribute to feature
-  //     }
-  //   ]
-  // }
-] as Category[]);
+  const testCategories = [
+    {
+      name: "Networking",
+      visible: true, // Added 'visible' attribute to category
+      features: [
+        {
+          childFeatures: [
+            {
+              childFeatures: [{
+                childFeatures: [],
+                description: "Networking 2.5",
+                timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
+                visible: true, // Added 'visible' attribute to feature
+              }],
+              description: "Networking 2",
+              timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
+              visible: true, // Added 'visible' attribute to feature
+            },
+            {
+              childFeatures: [],
+              description: "Networking 3",
+              timestamp: dayjs().add(4, 'year').add(3, 'month').toISOString(),
+              visible: true, // Added 'visible' attribute to feature
+            },
+            {
+              childFeatures: [],
+              description: "Networking 4",
+              timestamp: dayjs().add(5, 'year').add(1, 'month').toISOString(),
+              visible: true, // Added 'visible' attribute to feature
+            }
+          ],
+          description: "Networking 1",
+          timestamp: dayjs().add(3, 'year').toISOString(),
+          visible: true, // Added 'visible' attribute to feature
+        },
+        {
+          childFeatures: [
+            {
+              childFeatures: [],
+              description: "Networking 6",
+              timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
+              visible: true, // Added 'visible' attribute to feature
+            },
+            {
+              childFeatures: [],
+              description: "Networking 7",
+              timestamp: dayjs().add(3, 'year').add(3, 'month').toISOString(),
+              visible: true, // Added 'visible' attribute to feature
+            },
+            {
+              childFeatures: [],
+              description: "Networking 8",
+              timestamp: dayjs().add(6, 'year').add(1, 'month').toISOString(),
+              visible: true, // Added 'visible' attribute to feature
+            }
+          ],
+          description: "Networking 5",
+          timestamp: dayjs().add(3, 'year').toISOString(),
+          visible: true, // Added 'visible' attribute to feature
+        }
+      ]
+    },
+    {
+      name: "OS",
+      visible: true, // Added 'visible' attribute to category
+      features: [
+        {
+          childFeatures: [],
+          description: "OS 1",
+          timestamp: dayjs().add(3, 'year').toISOString(),
+          visible: true, // Added 'visible' attribute to feature
+        }
+      ]
+    },
+    {
+      name: "User Interface",
+      visible: true, // Added 'visible' attribute to category
+      features: [
+        {
+          childFeatures: [],
+          description: "UI 1",
+          timestamp: dayjs().add(3, 'year').toISOString(),
+          visible: true, // Added 'visible' attribute to feature
+        }
+      ]
+    },
+    {
+      name: "API",
+      visible: true, // Added 'visible' attribute to category
+      features: [
+        {
+          childFeatures: [],
+          description: "API 1",
+          timestamp: dayjs().add(3, 'year').toISOString(),
+          visible: true, // Added 'visible' attribute to feature
+        }
+      ]
+    },
+    {
+      name: "QA",
+      visible: true, // Added 'visible' attribute to category
+      features: [
+        {
+          childFeatures: [],
+          description: "QA 1",
+          timestamp: dayjs().add(3, 'year').toISOString(),
+          visible: true, // Added 'visible' attribute to feature
+        }
+      ]
+    },
+    {
+      name: "DevOps",
+      visible: true, // Added 'visible' attribute to category
+      features: [
+        {
+          childFeatures: [],
+          description: "DevOps 1",
+          timestamp: dayjs().add(3, 'year').toISOString(),
+          visible: true, // Added 'visible' attribute to feature
+        }
+      ]
+    }
+  ]
 
-const [fileNames, setFileNames] = useState<string[]>([]);
-  const [features] = useState<string[]>([]);
+  const [categories, setCategories] = useState([] as Category[]);
+  const [fileNames, setFileNames] = useState<string[]>([]);
   const [selectedFileName, setSelectedFileName] = useState<string>("");
   const [numCategories, setNumCategories] = useState(4);
+  const [tempCategories, setTempCategories] = useState(4);
   const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
   const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number } | null>(null);
   const coralContainerRef = useRef<HTMLDivElement>(null);
@@ -203,9 +203,13 @@ const [fileNames, setFileNames] = useState<string[]>([]);
     // Cap the value between 1 and 10
     const cappedValue = Math.min(Math.max(value, 1), 10);
     if (!isNaN(cappedValue)) {
-      setNumCategories(cappedValue);
+      setTempCategories(cappedValue);
     }
   };
+
+  const commitNumCategoriesValue = () => {
+    setNumCategories(tempCategories);
+  }
 
   const onFeatureHover = useCallback((feature: Feature | null, x?: number, y?: number) => {
     setHoveredFeature(feature);
@@ -235,10 +239,6 @@ const [fileNames, setFileNames] = useState<string[]>([]);
     });
     setCategories(catCopy);
   }, [categories]);
-
-  // const sidebarToggleFeature = useCallback( (feature: Feature, on: boolean) => {
-  //   if (on) 
-  // }, [categories]);
 
   // Fetch available files and create resize observer for the Coral component
   useEffect(() => {
@@ -278,7 +278,15 @@ const [fileNames, setFileNames] = useState<string[]>([]);
       // Make request to fetch features when a new file is selected or the number of categories changes
       // In principle, we should only make this request when a new file/number of categories is selected and the results don't already exist
       setLoading(true);
-      if (!selectedFileName || !numCategories) return;
+      if (selectedFileName === "" || !numCategories) {
+        setLoading(false);
+        return;
+      }
+      if (selectedFileName === "test") {
+        setCategories(testCategories);
+        setLoading(false);
+        return;
+      }
       fetch("/api/features", {
         method: "POST",
         headers: {
@@ -289,9 +297,7 @@ const [fileNames, setFileNames] = useState<string[]>([]);
         .then((response) => response.json())
         .then((json) => setCategories(fTreeToCategories(json.features, json.categories)))
         .then(() => setLoading(false))
-        .catch(() => setLoading(false));
-
-      // this should return a list of FeatureTreeNodes that we (me and Ethan) can then massage to fit the Coral component's needs
+        .catch(() => setLoading(false))
     }
     ,[selectedFileName, numCategories]);
 
@@ -333,12 +339,15 @@ const [fileNames, setFileNames] = useState<string[]>([]);
           <div className="filters-section">
             <div>
               <label>Number of Categories</label>
-              <input 
-                type="number" 
-                value={numCategories}
+              <input
+                type="text" // not "number", to avoid backspace/empty issues
+                placeholder={tempCategories as unknown as string}
                 onChange={handleNumCategoriesChange}
-                min="1"
-                max="10"
+                onBlur={commitNumCategoriesValue}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") commitNumCategoriesValue();
+                }}
+                style={{ width: 80 }}
               />
             </div>
             <div>

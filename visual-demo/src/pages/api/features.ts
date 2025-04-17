@@ -1,12 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 import "dotenv/config";
-import csv from "csv-parser";
 import fs from "fs";
-import { features } from "process";
-import { metadata } from "@/app/layout";
 import { assignChildrenToFeatures, makeTree } from "../../app/utilities/structure_data";
-import { mockZoomData } from "@/mockZoom";
+import { mockZoomResponse } from "./zoom-response";
+import { mockWebexResponse } from "./webex-response";
+import { mockFirefoxResponse } from "./firefox-response";
 
 type FeatureId = number;
 
@@ -84,43 +83,60 @@ async function gptCall(numCategories: number, fileName: string): Promise<any> {
   });
 
   return new Promise((resolve, reject) => {
-    // const streamController = openai.beta.threads.runs
-    //   .stream(thread.id, {
-    //     assistant_id: assistantId,
-    //   })
-    //   .on("messageDone", async (event) => {
-    //     try {
-    //       let response = "";
-    //       if (event.content[0].type === "text") {
-    //         const { text } = event.content[0];
-    //         const { annotations } = text;
-    //         const citations: string[] = [];
-    //         let index = 0;
-    //         for (const annotation of annotations) {
-    //           text.value = text.value.replace(annotation.text, `[${index}]`);
-    //           const { file_citation } = annotation as any;
-    //           if (file_citation) {
-    //             const citedFile = await openai.files.retrieve(
-    //               file_citation.file_id
-    //             );
-    //             citations.push(`[${index}] ${citedFile.filename}`);
-    //           }
-    //           index++;
-    //         }
-    //         response = text.value;
-    //       }
-    //       console.log("Response:", response);
-          const features = {
-            categories: mockZoomData.categories,
-            features: assignChildrenToFeatures(mockZoomData.features)
-          };
+    // return predefined response for the three large files
+    if (fileName === "Zoom") {
+      const ZoomFeatures = {
+        categories: mockZoomResponse.categories,
+        features: assignChildrenToFeatures(mockZoomResponse.features),
+      };
+      resolve(ZoomFeatures);
+    } else if (fileName === "Webex") {
+      const WebexFeatures = {
+        categories: mockWebexResponse.categories,
+        features: assignChildrenToFeatures(mockWebexResponse.features),
+      };
+      resolve(WebexFeatures);
+    } else if (fileName === "Firefox") {
+      const FirefoxFeatures = {
+        categories: mockFirefoxResponse.categories,
+        features: assignChildrenToFeatures(mockFirefoxResponse.features),
+      };
+      resolve(FirefoxFeatures);
+    }
+
+    const streamController = openai.beta.threads.runs
+      .stream(thread.id, {
+        assistant_id: assistantId,
+      })
+      .on("messageDone", async (event) => {
+        try {
+          let response = "";
+          if (event.content[0].type === "text") {
+            const { text } = event.content[0];
+            const { annotations } = text;
+            const citations: string[] = [];
+            let index = 0;
+            for (let annotation of annotations) {
+              text.value = text.value.replace(annotation.text, `[${index}]`);
+              const { file_citation } = annotation as any;
+              if (file_citation) {
+                const citedFile = await openai.files.retrieve(
+                  file_citation.file_id
+                );
+                citations.push(`[${index}] ${citedFile.filename}`);
+              }
+              index++;
+            }
+            response = text.value;
+          }
+          const features = parseFeatures(response);
           resolve(features);
-        // } catch (error) {
-        //   reject(error);
-        // }
-      // });
-  });
-}
+        } catch (error) {
+          reject(error);
+        }
+      });
+    })
+};
 
 function parseFeatures(res: string): any {
   const cleaned = res
@@ -165,26 +181,7 @@ export default async function handler(
   const numCategories = Number(req.body.numCategories) ?? 4;
   const fileName = req.body.fileName ?? "";
   return new Promise<void>((resolve, reject) => {
-    // gptCall(numCategories, fileName as string)
-    //   //fakeGptCall(numCategories as string, "")
-    //   .then((response) => {
-    //     res.statusCode = 200;
-    //     res.end(
-    //       JSON.stringify({
-    //         categories: response.categories,
-    //         features: makeTree(response.features, fileName),
-    //       })
-    //     );
-    //     resolve();
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //     res.json(error);
-    //     res.status(405).end();
-    //     resolve();
-    //   });
-
-      gptCall(numCategories, fileName as string)
+    gptCall(numCategories, fileName as string)
       //fakeGptCall(numCategories as string, "")
       .then((response) => {
         res.statusCode = 200;

@@ -1,4 +1,4 @@
-export const mockZoomData = {
+export const mockZoomResponse = {
     "categories": [
         "General features",
         "Meeting features",
