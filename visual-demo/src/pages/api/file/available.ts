@@ -1,19 +1,19 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { OpenAI } from "openai";
 import fs from "fs";
-import parseCSV from "csv-parser";
 
 async function gptCall(): Promise<string[]> {
   const mappingFileLocation = "./data/file-name-mappings.json";
   const assistants = JSON.parse(fs.readFileSync(mappingFileLocation, "utf-8"));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return assistants.map((assistant: any) => assistant.fileName);
 }
 
 export default async function handler(
   req: NextApiRequest,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   res: NextApiResponse<any>
 ) {
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>((resolve) => {
     gptCall()
       .then((response) => {
         res.statusCode = 200;

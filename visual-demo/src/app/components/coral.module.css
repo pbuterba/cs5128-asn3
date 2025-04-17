@@ -6,9 +6,10 @@
   --button-secondary-hover: #383838;
   --button-primary-hover: #f2f2f2;
 
-  display: flex;
+  display: grid;
+  grid-template-rows: 20px 1fr 20px;
   align-items: center;
-  justify-content: center;
+  justify-items: center;
   min-height: 100svh;
   padding: 80px;
   gap: 64px;
@@ -58,6 +59,10 @@
 .ctas {
   display: flex;
   gap: 16px;
+}
+
+.plot {
+  border: 2px solid white;
 }
 
 .ctas a {

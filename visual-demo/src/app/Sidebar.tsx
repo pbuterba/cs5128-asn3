@@ -1,34 +1,23 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef, JSX } from "react";
 import { FaEye, FaEyeSlash, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { Category, Feature } from "./types/feature";
+import { rainbow } from "./components/colors";
 
 interface SidebarProps {
-  numCategories: number;
+  categories: Category[]
+  onFeatureToggle: ((feature: Feature) => void)
+  onCategoryToggle: ((category: Category) => void)
 }
 
 // Sidebar component
-const Sidebar = ({ numCategories }: SidebarProps) => {
+const Sidebar = ({ categories, onFeatureToggle, onCategoryToggle }: SidebarProps) => {
+  const onFeatureToggleRef = useRef<typeof onFeatureToggle>(null);
+  onFeatureToggleRef.current = onFeatureToggle; 
+  const onCategoryToggleRef = useRef<typeof onCategoryToggle>(null);
+  onCategoryToggleRef.current = onCategoryToggle;
+
   const [activeDropdowns, setActiveDropdowns] = useState<{ [key: string]: boolean }>({});
-  const [visibleItems, setVisibleItems] = useState<{ [key: string]: boolean }>(() => {
-    // Initialize all categories and features to visible (true)
-    const initialState: { [key: string]: boolean } = {};
-    const categories = [
-      "Logging", "Networking", "User Experience", "Visual Fidelity", "Communication",
-      "Audio", "Performance", "Security", "Integration", "Analytics", "Automation",
-      "Collaboration", "Customization", "Mobile", "API", "Storage", "Search",
-      "Notifications", "Reporting", "Workflow"
-    ].slice(0, numCategories);
-
-    categories.forEach(category => {
-      initialState[category] = true;
-      // Initialize all features under each category to visible
-      [...Array(5)].forEach((_, index) => {
-        initialState[`${category}-feature-${index}`] = true;
-      });
-    });
-
-    return initialState;
-  });
 
   const toggleDropdown = (name: string) => {
     setActiveDropdowns((prev) => ({
@@ -37,90 +26,135 @@ const Sidebar = ({ numCategories }: SidebarProps) => {
     }));
   };
 
-  const toggleVisibility = (itemId: string, isCategory: boolean = false) => {
-    setVisibleItems((prev) => {
-      const newState = { ...prev };
-      const newVisibility = !prev[itemId];
-      newState[itemId] = newVisibility;
-
-      // If this is a category toggle, update all features under this category
-      if (isCategory) {
-        [...Array(5)].forEach((_, index) => {
-          const featureId = `${itemId}-feature-${index}`;
-          newState[featureId] = newVisibility;
-        });
-      }
-
-      return newState;
-    });
+  const toggleFeature = (feature: Feature) => {
+    onFeatureToggleRef.current?.(feature);
   };
 
-  // Generate categories based on numCategories
-  const categories = [
-    { name: "Logging", color: "#4CAF50" },
-    { name: "Networking", color: "#2196F3" },
-    { name: "User Experience", color: "#9C27B0" },
-    { name: "Visual Fidelity", color: "#FF9800" },
-    { name: "Communication", color: "#E91E63" },
-    { name: "Audio", color: "#00BCD4" },
-    { name: "Performance", color: "#FF5722" },
-    { name: "Security", color: "#795548" },
-    { name: "Integration", color: "#607D8B" },
-    { name: "Analytics", color: "#009688" },
-    { name: "Automation", color: "#673AB7" },
-    { name: "Collaboration", color: "#3F51B5" },
-    { name: "Customization", color: "#FFC107" },
-    { name: "Mobile", color: "#8BC34A" },
-    { name: "API", color: "#FF4081" },
-    { name: "Storage", color: "#00BCD4" },
-    { name: "Search", color: "#FF9800" },
-    { name: "Notifications", color: "#9C27B0" },
-    { name: "Reporting", color: "#4CAF50" },
-    { name: "Workflow", color: "#2196F3" },
-  ].slice(0, numCategories);
+  const toggleCategory = (category: Category) => {
+    onCategoryToggleRef.current?.(category);
+  };
+  
+  const FeatureItem = ({
+    feature,
+    path,
+    onToggleDropdown,
+    isOpen,
+  }: {
+    feature: Feature;
+    path: string;
+    onToggleDropdown: (path: string) => void;
+    isOpen: boolean;
+  }) => {
+    const hasChildren = feature.childFeatures?.length > 0;
+  
+    return (
+      <li key={path} className="feature-item" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        {/* Left: title + dropdown toggle */}
+        <div
+          className="dropdown-header"
+          onClick={() => hasChildren && onToggleDropdown(path)}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexGrow: 1,
+            cursor: hasChildren ? "pointer" : "default",
+            padding: "0.25rem 0.5rem",
+            gap: "0.5rem",
+          }}
+        >
+          <span>{feature.description}</span>
+          {hasChildren && (
+            <span className="dropdown-toggle">
+              {isOpen ? <FaChevronUp /> : <FaChevronDown />}
+            </span>
+          )}
+        </div>
+  
+        {/* Right: visibility icon */}
+        <button
+          className="visibility-toggle"
+          onClick={() => toggleFeature(feature)}
+          title={feature.visible ? "Hide Feature" : "Show Feature"}
+          style={{ marginLeft: "0.5rem", flexShrink: 0 }}
+        >
+          {feature.visible ? <FaEye /> : <FaEyeSlash />}
+        </button>
+      </li>
+    );
+  };
 
+  const FeatureList = ({
+    features,
+    activeDropdowns,
+    toggleDropdown,
+    parentPath = "",
+  }: {
+    features: Feature[];
+    activeDropdowns: Record<string, boolean>;
+    toggleDropdown: (path: string) => void;
+    parentPath?: string;
+  }) => {
+    const renderFeatures = (features: Feature[], parentPath = ""): JSX.Element[] => {
+      let items: JSX.Element[] = [];
+  
+      features.forEach((feature, index) => {
+        const path = parentPath ? `${parentPath}-child-${index}` : `${index}`;
+        const isOpen = activeDropdowns[path] ?? false;
+  
+        items.push(
+          <FeatureItem
+            key={path}
+            feature={feature}
+            path={path}
+            isOpen={isOpen}
+            onToggleDropdown={toggleDropdown}
+          />
+        );
+  
+        if (isOpen && feature.childFeatures?.length) {
+          const childItems = renderFeatures(feature.childFeatures, path);
+          items = items.concat(childItems);
+        }
+      });
+  
+      return items;
+    };
+  
+    return <ul className="feature-list">{renderFeatures(features, parentPath)}</ul>;
+  };  
+  
   return (
     <div className="sidebar">
       <h2>Feature Visibility</h2>
       <ul className="category-list">
-        {categories.map((category) => (
+        {categories.map((category: Category, i) => (
           <li key={category.name} className="category-item">
             <div className="category-header">
               <div
                 className="dropdown-header"
                 onClick={() => toggleDropdown(category.name)}
-                style={{ borderLeft: `4px solid ${category.color}` }}
+                style={{ borderLeft: `4px solid ${rainbow(categories.length, i)}` }}
               >
                 <span>{category.name}</span>
                 {activeDropdowns[category.name] ? <FaChevronUp /> : <FaChevronDown />}
               </div>
               <button
                 className="visibility-toggle"
-                onClick={() => toggleVisibility(category.name, true)}
-                title={visibleItems[category.name] ? "Hide Category" : "Show Category"}
+                onClick={() => toggleCategory(category)}
+                title={category.visible ? "Hide Category" : "Show Category"}
               >
-                {visibleItems[category.name] ? <FaEye /> : <FaEyeSlash />}
+                {category.visible ? <FaEye /> : <FaEyeSlash />}
               </button>
             </div>
             {activeDropdowns[category.name] && (
-              <ul className="dropdown-list">
-                {[...Array(5)].map((_, index) => {
-                  const featureId = `${category.name}-feature-${index}`;
-                  return (
-                    <li key={featureId} className="feature-item">
-                      <span>Feature {index + 1}</span>
-                      <button
-                        className="visibility-toggle"
-                        onClick={() => toggleVisibility(featureId)}
-                        title={visibleItems[featureId] ? "Hide Feature" : "Show Feature"}
-                      >
-                        {visibleItems[featureId] ? <FaEye /> : <FaEyeSlash />}
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+              <FeatureList
+                key={`${category.name}-features-${i}`}
+                features={category.features}
+                activeDropdowns={activeDropdowns}
+                toggleDropdown={toggleDropdown}
+                parentPath={`${i}`}
+              />
+            )}    
           </li>
         ))}
       </ul>
