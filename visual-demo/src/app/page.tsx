@@ -13,37 +13,39 @@ export default function Home() {
   const testCategories = [
     {
       name: "Networking",
-      visible: true, // Added 'visible' attribute to category
+      visible: true,
       features: [
         {
           childFeatures: [
             {
-              childFeatures: [{
-                childFeatures: [],
-                description: "Networking 2.5",
-                timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
-                visible: true, // Added 'visible' attribute to feature
-              }],
+              childFeatures: [
+                {
+                  childFeatures: [],
+                  description: "Networking 2.5",
+                  timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
+                  visible: true,
+                }
+              ],
               description: "Networking 2",
               timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
-              visible: true, // Added 'visible' attribute to feature
+              visible: true,
             },
             {
               childFeatures: [],
               description: "Networking 3",
               timestamp: dayjs().add(4, 'year').add(3, 'month').toISOString(),
-              visible: true, // Added 'visible' attribute to feature
+              visible: true,
             },
             {
               childFeatures: [],
               description: "Networking 4",
               timestamp: dayjs().add(5, 'year').add(1, 'month').toISOString(),
-              visible: true, // Added 'visible' attribute to feature
-            }
+              visible: true,
+            },
           ],
           description: "Networking 1",
           timestamp: dayjs().add(3, 'year').toISOString(),
-          visible: true, // Added 'visible' attribute to feature
+          visible: true,
         },
         {
           childFeatures: [
@@ -51,88 +53,161 @@ export default function Home() {
               childFeatures: [],
               description: "Networking 6",
               timestamp: dayjs().add(3, 'year').add(1, 'month').toISOString(),
-              visible: true, // Added 'visible' attribute to feature
+              visible: true,
             },
             {
               childFeatures: [],
               description: "Networking 7",
               timestamp: dayjs().add(3, 'year').add(3, 'month').toISOString(),
-              visible: true, // Added 'visible' attribute to feature
+              visible: true,
             },
             {
               childFeatures: [],
               description: "Networking 8",
               timestamp: dayjs().add(6, 'year').add(1, 'month').toISOString(),
-              visible: true, // Added 'visible' attribute to feature
+              visible: true,
             }
           ],
           description: "Networking 5",
           timestamp: dayjs().add(3, 'year').toISOString(),
-          visible: true, // Added 'visible' attribute to feature
+          visible: true,
+        },
+        {
+          childFeatures: [],
+          description: "Networking 9",
+          timestamp: dayjs().add(6, 'year').add(6, 'month').toISOString(),
+          visible: true,
+        },
+        {
+          childFeatures: [],
+          description: "Networking 10",
+          timestamp: dayjs().add(7, 'year').toISOString(),
+          visible: true,
         }
       ]
     },
     {
       name: "OS",
-      visible: true, // Added 'visible' attribute to category
+      visible: true,
       features: [
         {
           childFeatures: [],
           description: "OS 1",
           timestamp: dayjs().add(3, 'year').toISOString(),
-          visible: true, // Added 'visible' attribute to feature
+          visible: true,
+        },
+        {
+          childFeatures: [],
+          description: "OS 2",
+          timestamp: dayjs().add(3, 'year').add(6, 'month').toISOString(),
+          visible: true,
+        },
+        {
+          childFeatures: [],
+          description: "OS 3",
+          timestamp: dayjs().add(4, 'year').toISOString(),
+          visible: true,
         }
       ]
     },
     {
       name: "User Interface",
-      visible: true, // Added 'visible' attribute to category
+      visible: true,
       features: [
         {
           childFeatures: [],
           description: "UI 1",
           timestamp: dayjs().add(3, 'year').toISOString(),
-          visible: true, // Added 'visible' attribute to feature
+          visible: true,
+        },
+        {
+          childFeatures: [],
+          description: "UI 2",
+          timestamp: dayjs().add(3, 'year').add(4, 'month').toISOString(),
+          visible: true,
+        },
+        {
+          childFeatures: [],
+          description: "UI 3",
+          timestamp: dayjs().add(4, 'year').add(2, 'month').toISOString(),
+          visible: true,
         }
       ]
     },
     {
       name: "API",
-      visible: true, // Added 'visible' attribute to category
+      visible: true,
       features: [
         {
           childFeatures: [],
           description: "API 1",
           timestamp: dayjs().add(3, 'year').toISOString(),
-          visible: true, // Added 'visible' attribute to feature
+          visible: true,
+        },
+        {
+          childFeatures: [],
+          description: "API 2",
+          timestamp: dayjs().add(3, 'year').add(2, 'month').toISOString(),
+          visible: true,
+        },
+        {
+          childFeatures: [],
+          description: "API 3",
+          timestamp: dayjs().add(4, 'year').add(1, 'month').toISOString(),
+          visible: true,
         }
       ]
     },
     {
       name: "QA",
-      visible: true, // Added 'visible' attribute to category
+      visible: true,
       features: [
         {
           childFeatures: [],
           description: "QA 1",
           timestamp: dayjs().add(3, 'year').toISOString(),
-          visible: true, // Added 'visible' attribute to feature
+          visible: true,
+        },
+        {
+          childFeatures: [],
+          description: "QA 2",
+          timestamp: dayjs().add(3, 'year').add(3, 'month').toISOString(),
+          visible: true,
+        },
+        {
+          childFeatures: [],
+          description: "QA 3",
+          timestamp: dayjs().add(4, 'year').add(2, 'month').toISOString(),
+          visible: true,
         }
       ]
     },
     {
       name: "DevOps",
-      visible: true, // Added 'visible' attribute to category
+      visible: true,
       features: [
         {
           childFeatures: [],
           description: "DevOps 1",
           timestamp: dayjs().add(3, 'year').toISOString(),
-          visible: true, // Added 'visible' attribute to feature
+          visible: true,
+        },
+        {
+          childFeatures: [],
+          description: "DevOps 2",
+          timestamp: dayjs().add(3, 'year').add(3, 'month').toISOString(),
+          visible: true,
+        },
+        {
+          childFeatures: [],
+          description: "DevOps 3",
+          timestamp: dayjs().add(4, 'year').toISOString(),
+          visible: true,
         }
       ]
     }
-  ]
+  ];
+  
 
   const [categories, setCategories] = useState([] as Category[]);
   const [fileNames, setFileNames] = useState<string[]>([]);
