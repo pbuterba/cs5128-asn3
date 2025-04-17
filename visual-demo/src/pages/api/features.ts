@@ -61,6 +61,7 @@ function getAssistantIdAndFileId(fileName: string): {
   const mappingFileLocation = "./data/file-name-mappings.json";
   const assistants = fs.readFileSync(mappingFileLocation, "utf-8");
   const assistant = JSON.parse(assistants).find(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (assistant: any) => assistant.fileName === fileName
   );
   return {
@@ -69,6 +70,7 @@ function getAssistantIdAndFileId(fileName: string): {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function gptCall(numCategories: number, fileName: string): Promise<any> {
   const { assistantId, fileId } = getAssistantIdAndFileId(fileName);
   const thread = await openai.beta.threads.create({
@@ -104,6 +106,7 @@ async function gptCall(numCategories: number, fileName: string): Promise<any> {
       resolve(FirefoxFeatures);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const streamController = openai.beta.threads.runs
       .stream(thread.id, {
         assistant_id: assistantId,
@@ -116,8 +119,9 @@ async function gptCall(numCategories: number, fileName: string): Promise<any> {
             const { annotations } = text;
             const citations: string[] = [];
             let index = 0;
-            for (let annotation of annotations) {
+            for (const annotation of annotations) {
               text.value = text.value.replace(annotation.text, `[${index}]`);
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const { file_citation } = annotation as any;
               if (file_citation) {
                 const citedFile = await openai.files.retrieve(
@@ -138,6 +142,7 @@ async function gptCall(numCategories: number, fileName: string): Promise<any> {
     })
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function parseFeatures(res: string): any {
   const cleaned = res
     .replace(/^```(?:json)?\s*\n?/, "")
@@ -165,6 +170,7 @@ function parseFeatures(res: string): any {
   return {
     categories: parseRes.categories,
     features: parseRes.features.map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (feature: any): FeatureDefinition => ({
         id: feature.id,
         category: feature.category,
@@ -176,11 +182,12 @@ function parseFeatures(res: string): any {
 
 export default async function handler(
   req: NextApiRequest,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   res: NextApiResponse<any>
 ) {
   const numCategories = Number(req.body.numCategories) ?? 4;
   const fileName = req.body.fileName ?? "";
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>((resolve) => {
     gptCall(numCategories, fileName as string)
       //fakeGptCall(numCategories as string, "")
       .then((response) => {

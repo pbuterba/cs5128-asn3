@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs'
 import { FeatureNode, FeatureTreeNode } from '../types/features';
 
-let metadataMap: Record<number, Record<string, any>> = {};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const metadataMap: Record<number, Record<string, any>> = {};
 
 export function assignChildrenToFeatures(features: FeatureNode[]): FeatureNode[] {
   const categoryMap: Record<string, FeatureNode[]> = {};
@@ -54,24 +55,27 @@ export function makeTree(dataList: FeatureNode[], fileName: string): FeatureTree
       featureDataString = readFileSync('./data/' + fileName + '.json', 'utf8');
    } catch(error) {
       console.error("The file %s does not exist", fileName + '.json');
+      console.error(error);
       return null;
    }
 
-   //Parse JSON
+   // Parse JSON
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
    let featureData: any[];
    try {
       featureData = JSON.parse(featureDataString);
    } catch(error) {
       console.error("Data file %s contains invalid JSON", fileName);
+      console.error(error);
       return null;
    }
 
-   //Fill in metadata map
+   // Fill in metadata map
    featureData.forEach((dataEntry) => {
-      let metadata: Record<string, any> = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const metadata: Record<string, any> = {};
       Object.keys(dataEntry).forEach((key) => {
         if(key != 'id') {
-          let value = dataEntry[key];
           try {
             const dateComponents: string[] = dataEntry[key].split("-");
             const date = new Date(parseInt(dateComponents[2]), parseInt(dateComponents[0]), parseInt(dateComponents[1]));
@@ -81,6 +85,7 @@ export function makeTree(dataList: FeatureNode[], fileName: string): FeatureTree
             metadata['date'] = date;
           } catch(error) {
             metadata[key] = dataEntry[key];
+            console.error(error);
           }
         }
       });

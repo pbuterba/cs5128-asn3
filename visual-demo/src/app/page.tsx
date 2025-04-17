@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, createRef, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Sidebar from "../app/Sidebar";   // Corrected import path
 import "../app/globals.css"; // Correct path to styles directory
 import { useCallback } from "react";
@@ -328,7 +328,7 @@ export default function Home() {
       .then(() => setLoading(false));
 
       const resizeObserver = new ResizeObserver(entries => {
-        for (let entry of entries) {
+        for (const entry of entries) {
           if (entry.target === coralContainerRef.current) {
             const { width, height } = entry.contentRect;
             setContainerSize({ width, height });

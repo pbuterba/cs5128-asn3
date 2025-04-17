@@ -13,7 +13,7 @@ export function rainbow(numOfSteps: number, step: number) {
         case 2: r = 0; g = 1; b = f; break;
         case 3: r = 0; g = q; b = 1; break;
         case 4: r = f; g = 0; b = 1; break;
-        case 5: r = 1; g = 0; b = q; break;
+        default: r = 1; g = 0; b = q; break;
     }
     const c = "#" + ("00" + (~ ~(r * 255)).toString(16)).slice(-2) + ("00" + (~ ~(g * 255)).toString(16)).slice(-2) + ("00" + (~ ~(b * 255)).toString(16)).slice(-2);
     return (pastelizeHex(c));

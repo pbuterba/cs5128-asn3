@@ -11,6 +11,7 @@ function createJsonFile(csvContent: string[], fileName: string) {
 
   // Parse headers properly
   const csvHeaders = parseCSVLine(csvContent[0]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const jsonObjects: any[] = [];
 
   csvContent.forEach((line, index) => {
@@ -22,6 +23,7 @@ function createJsonFile(csvContent: string[], fileName: string) {
       );
       return;
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tempObject: any = { id: index };
     values.forEach((value, i) => {
       tempObject[csvHeaders[i]] = value;
@@ -73,6 +75,7 @@ function parseCSVLine(line: string): string[] {
 async function gptCall(csvContent: string[], fileName: string): Promise<void> {
   createJsonFile(csvContent, fileName);
   const mappingFileLocation = "./data/file-name-mappings.json";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const assistants: any[] = JSON.parse(
     fs.readFileSync(mappingFileLocation, "utf-8")
   );
@@ -108,12 +111,13 @@ async function gptCall(csvContent: string[], fileName: string): Promise<void> {
 
 export default async function handler(
   req: NextApiRequest,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   res: NextApiResponse<any>
 ) {
   // Parse the request body directly since it's now JSON
   const { csv, fileName } = req.body;
 
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<void>((resolve) => {
     // fakeGPTCall(csv, fileName)
     gptCall(csv, fileName)
       .then((response) => {

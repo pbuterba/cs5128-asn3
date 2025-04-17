@@ -1,10 +1,11 @@
 'use client'
 
-import { createRef, Ref, RefObject, useEffect, useRef } from "react";
+import { createRef, RefObject, useEffect, useRef } from "react";
 import * as d3 from "d3";
 import { Category, Feature } from "../types/feature";
 import dayjs from "dayjs";
 import { rainbow } from './colors';
+import { FC } from "react";
 
 const minMaxCategoriesDate = (categories: Category[]) => {
     let maxDate = dayjs.unix(0);
@@ -67,12 +68,12 @@ class CoralBase {
     width: number;
     height: number;
     categories: Category[];
-    svgRef: Ref<SVGElement>;
+    svgRef: RefObject<SVGElement>;
     maxDate: dayjs.Dayjs;
     minDate: dayjs.Dayjs;
-    onFeatureHoverRef: RefObject<((feature: Feature | null, x: number | undefined, y: number | undefined) => void) | undefined>;
+    onFeatureHoverRef: RefObject<((feature: Feature | null, x?: number, y?: number) => void) | null>;
 
-    constructor(width: number, height: number, svgRef: Ref<SVGElement>, categories: Category[], onFeatureHoverRef: RefObject<((feature: Feature | null) => void) | undefined>) {
+    constructor(width: number, height: number, svgRef: RefObject<SVGElement>, categories: Category[], onFeatureHoverRef: RefObject<((feature: Feature | null, x?: number, y?: number) => void) | null>) {
         this.width = width;
         this.height = height;
         this.svgRef = svgRef;
@@ -175,6 +176,7 @@ class CoralBase {
         const timestamp = dayjs(feature.timestamp);
         const timeDistance = ((timestamp.unix() - minDate.unix()) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2));
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const [_, maxBranchTime] = minMaxFeatureDate([feature]);
         const branchLength = (((maxBranchTime.add(32, 'M').unix() - timestamp.unix())) / (maxDate.unix() - minDate.unix())) * Math.min((width / 2), (height / 2))
       
@@ -220,18 +222,25 @@ class CoralBase {
     }
 }
 
-export default function Coral({width, height, categories, onFeatureHover}) {
-    const ref = createRef<SVGElement>();
+interface CoralProps {
+    width: number;
+    height: number;
+    categories: Category[];
+    onFeatureHover: (feature: Feature | null, x?: number, y?: number) => void;
+}
+
+const Coral: FC<CoralProps> = ({ width, height, categories, onFeatureHover }) => {
+    const ref = createRef<SVGSVGElement>();
     const onFeatureHoverRef = useRef<typeof onFeatureHover>(null);
     onFeatureHoverRef.current = onFeatureHover; 
     
     useEffect(() => {
-        const coral = new CoralBase(width, height, ref, categories, onFeatureHoverRef);
+        const coral = new CoralBase(width, height, ref as RefObject<SVGElement>, categories, onFeatureHoverRef);
         coral.draw();
 
         if (!ref.current) return;
 
-        const svg = d3.select(ref.current);
+        const svg = d3.select(ref.current as SVGSVGElement);
         const container = svg.select<SVGGElement>('.zoom-container');
 
         const previousK = createRef<number>();
@@ -241,19 +250,26 @@ export default function Coral({width, height, categories, onFeatureHover}) {
             .scaleExtent([0.1, 30]) // adjust min/max zoom as needed
             .on("zoom", (event) => {
                 container.attr("transform", event.transform);
-                const scale = previousK.current / event.transform.k;
-                const lines = svg.selectAll('line');
-                const circles = svg.selectAll('circle');
-                lines.each((_, i, node) => {
-                  node[i].setAttribute('stroke-width', node[i].getAttribute('stroke-width') * scale);
-                  if (node[i].getAttribute('stroke-dasharray')) {
-                    node[i].setAttribute('stroke-dasharray', node[i].getAttribute('stroke-dasharray') * scale);
-                  }
-                });
-                circles.each((_, i, node) => {
-                  node[i].setAttribute('r', node[i].getAttribute('r') * scale);
-                });
-                previousK.current = event.transform.k;
+                if (previousK.current !== null) {
+                    const scale = previousK.current / event.transform.k;
+                    const lines = svg.selectAll('line');
+                    const circles = svg.selectAll('circle');
+                    lines.each((_, i, node) => {
+                        const strokeWidth = (node[i] as Element).getAttribute('stroke-width');
+                        if (strokeWidth !== null) {
+                            (node[i] as Element).setAttribute('stroke-width', (parseFloat(strokeWidth) * scale).toString());
+                        }
+                        const element = node[i] as Element;
+                        const dashArray = element.getAttribute('stroke-dasharray');
+                        if (dashArray) {
+                            element.setAttribute('stroke-dasharray', (parseFloat(dashArray) * scale).toString());
+                        }
+                    });
+                    circles.each((_, i, node) => {
+                        (node[i] as Element).setAttribute('r', (parseFloat((node[i] as Element).getAttribute('r') || '0') * scale).toString());
+                    });
+                    previousK.current = event.transform.k;
+                }
             });
 
         svg.call(zoom);
@@ -261,3 +277,5 @@ export default function Coral({width, height, categories, onFeatureHover}) {
 
     return <svg width={width} height={height} ref={ref} />;
 }
+
+export default Coral;
